@@ -1,0 +1,12 @@
+yt-dlp
+opencv-python
+mediapipe
+numpy
+pandas
+webvtt-py
+torch
+torchvision
+torchaudio
+fastapi
+uvicorn
+websockets

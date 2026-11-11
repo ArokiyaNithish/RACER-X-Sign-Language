@@ -1,0 +1,69 @@
+@import url('https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: 'Google Sans', 'Inter', system-ui, -apple-system, sans-serif;
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background-color: #121316;
+  background-image: 
+    radial-gradient(circle at 15% 15%, rgba(26, 115, 232, 0.12) 0%, transparent 45%),
+    radial-gradient(circle at 85% 85%, rgba(52, 168, 83, 0.08) 0%, transparent 45%),
+    radial-gradient(circle at 50% 50%, rgba(234, 67, 53, 0.05) 0%, transparent 60%);
+  color: #e8eaed;
+  overflow-x: hidden;
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* Glassmorphism Classes for Google Flow */
+.glass-panel {
+  background: rgba(32, 33, 36, 0.72);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.glass-pill {
+  background: rgba(32, 33, 36, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+}
+
+.glass-input {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  transition: all 0.2s ease;
+}
+
+.glass-input:focus {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: #8ab4f8;
+  box-shadow: 0 0 0 2px rgba(138, 180, 248, 0.25);
+  outline: none;
+}
+
+/* Custom animated gradient for brand elements */
+@keyframes pulseSlow {
+  0%, 100% { opacity: 0.8; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.03); }
+}
+
+.animate-pulse-slow {
+  animation: pulseSlow 3s infinite ease-in-out;
+}

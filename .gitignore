@@ -1,0 +1,55 @@
+# Dataset (large files - download separately from Kaggle)
+dataset/
+dataset.zip
+archive.zip
+
+# Video files (large)
+*.mp4
+*.avi
+*.mkv
+*.mov
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+
+# Model weights (large binary - download separately)
+checkpoints/*.pth
+models/*.task
+
+# Virtual environments
+venv/
+env/
+.env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temporary files
+*.tmp
+*.log
+scratch/
+
+# Node modules (frontend)
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+
+# Compiled PDFs (paper)
+*.pdf
+
+# Batch output
+*.bat.log
+
+# Cookies and credentials
+cookies.txt

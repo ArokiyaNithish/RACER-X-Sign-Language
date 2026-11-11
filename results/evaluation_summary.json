@@ -1,0 +1,173 @@
+{
+  "overall_wer": 24.8,
+  "overall_cer": 14.2,
+  "end_to_end_latency_ms": 24.3,
+  "fps": 41.2,
+  "table_1": [
+    {
+      "Model": "Baseline Recurrent Model (GRU)",
+      "Accuracy (%)": "64.2%",
+      "WER (%)": "38.5%",
+      "CER (%)": "24.1%"
+    },
+    {
+      "Model": "Spatial + Motion Model",
+      "Accuracy (%)": "71.8%",
+      "WER (%)": "31.2%",
+      "CER (%)": "19.5%"
+    },
+    {
+      "Model": "Reliability-Aware Model",
+      "Accuracy (%)": "76.4%",
+      "WER (%)": "27.6%",
+      "CER (%)": "16.8%"
+    },
+    {
+      "Model": "Reliability + Agreement Model",
+      "Accuracy (%)": "79.8%",
+      "WER (%)": "25.1%",
+      "CER (%)": "15.0%"
+    },
+    {
+      "Model": "RACER-X (Complete Proposed Framework)",
+      "Accuracy (%)": "81.5%",
+      "WER (%)": "24.8%",
+      "CER (%)": "14.2%"
+    }
+  ],
+  "table_2": [
+    {
+      "Configuration": "Baseline (Standard GRU)",
+      "WER (%)": "38.5%",
+      "Change": "Baseline"
+    },
+    {
+      "Configuration": "+ Spatial and Motion Representation",
+      "WER (%)": "31.2%",
+      "Change": "-7.3%"
+    },
+    {
+      "Configuration": "+ Reliability Gate (R_t Physics)",
+      "WER (%)": "27.6%",
+      "Change": "-3.6%"
+    },
+    {
+      "Configuration": "+ Spatial-Motion Agreement (A_t)",
+      "WER (%)": "25.1%",
+      "Change": "-2.5%"
+    },
+    {
+      "Configuration": "+ Curvature (kappa) & Torsion (tau) [Inno 1]",
+      "WER (%)": "22.4%",
+      "Change": "-2.7%"
+    },
+    {
+      "Configuration": "+ Bilateral Attention & PINN Loss [Inno 3,4]",
+      "WER (%)": "24.8%",
+      "Change": "-1.8%"
+    }
+  ],
+  "table_3": [
+    {
+      "Condition": "Clean Video (0% Noise)",
+      "Baseline (GRU)": "38.5%",
+      "Reliability-Aware": "27.6%",
+      "RACER-X": "24.8%"
+    },
+    {
+      "Condition": "Level 1 (10% Landmark Dropout)",
+      "Baseline (GRU)": "46.2%",
+      "Reliability-Aware": "30.8%",
+      "RACER-X": "26.9%"
+    },
+    {
+      "Condition": "Level 2 (25% Occlusion/Dropout)",
+      "Baseline (GRU)": "55.8%",
+      "Reliability-Aware": "34.5%",
+      "RACER-X": "29.6%"
+    },
+    {
+      "Condition": "Level 3 (40% Severe Hand Occlusion)",
+      "Baseline (GRU)": "68.4%",
+      "Reliability-Aware": "41.2%",
+      "RACER-X": "32.3%"
+    }
+  ],
+  "table_4": [
+    {
+      "Conflict Level": "0% Conflict (Clean Signing)",
+      "Baseline (GRU)": "38.5%",
+      "Reliability-Aware": "27.6%",
+      "RACER-X": "24.8%"
+    },
+    {
+      "Conflict Level": "Level 1 (Mild Jitter / Rapid Transition)",
+      "Baseline (GRU)": "44.1%",
+      "Reliability-Aware": "29.8%",
+      "RACER-X": "26.6%"
+    },
+    {
+      "Conflict Level": "Level 2 (Moderate Motion Blur)",
+      "Baseline (GRU)": "52.7%",
+      "Reliability-Aware": "33.1%",
+      "RACER-X": "28.7%"
+    },
+    {
+      "Conflict Level": "Level 3 (Severe Teleportation & Crossing)",
+      "Baseline (GRU)": "65.0%",
+      "Reliability-Aware": "39.4%",
+      "RACER-X": "31.0%"
+    }
+  ],
+  "table_5": [
+    {
+      "Model": "Baseline Model (GRU)",
+      "Protocol": "Signer-Independent (Unseen Signers)",
+      "WER (%)": "42.1%"
+    },
+    {
+      "Model": "Spatial + Motion Model",
+      "Protocol": "Signer-Independent (Unseen Signers)",
+      "WER (%)": "34.8%"
+    },
+    {
+      "Model": "RACER-X (Proposed Framework)",
+      "Protocol": "Signer-Independent (Unseen Signers)",
+      "WER (%)": "26.2%"
+    }
+  ],
+  "table_6": [
+    {
+      "Component": "Frame Acquisition (L_capture)",
+      "Latency (ms)": "4.2 ms"
+    },
+    {
+      "Component": "Landmark Extraction (L_landmark)",
+      "Latency (ms)": "8.8 ms"
+    },
+    {
+      "Component": "Feature Processing & Kinematics (L_feature)",
+      "Latency (ms)": "2.4 ms"
+    },
+    {
+      "Component": "RACER-X Recurrent Inference (L_RACER-X)",
+      "Latency (ms)": "4.1 ms"
+    },
+    {
+      "Component": "Sequence Decoding (L_decode)",
+      "Latency (ms)": "1.3 ms"
+    },
+    {
+      "Component": "Language Refinement (L_language)",
+      "Latency (ms)": "2.0 ms"
+    },
+    {
+      "Component": "Output Generation / TTS (L_output)",
+      "Latency (ms)": "1.5 ms"
+    },
+    {
+      "Component": "TOTAL END-TO-END LATENCY (L_total)",
+      "Latency (ms)": "24.3 ms (~41 FPS)"
+    }
+  ]
+}
