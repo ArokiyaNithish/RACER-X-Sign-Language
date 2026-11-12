@@ -44,8 +44,23 @@ function loadTokenAndConnect() {
 }
 
 // ── WebSocket Manager ─────────────────────────
-function connectWebSocket() {
+async function connectWebSocket() {
     if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) return;
+
+    // Check if RACER-X Python backend is running first to avoid unhandled net::ERR_CONNECTION_REFUSED errors in Chrome
+    try {
+        const res = await fetch('http://localhost:8000/health', {
+            method: 'GET',
+            signal: AbortSignal.timeout(1200)
+        });
+        if (!res.ok) throw new Error('Backend not ready');
+    } catch (e) {
+        // Backend is offline — log gracefully and schedule retry without error spam
+        console.log('[SignBridge] RACER-X backend (http://localhost:8000) is offline. Run "python server.py" to enable AI inference.');
+        broadcastToContent({ type: 'WS_STATUS', status: 'offline' });
+        scheduleReconnect();
+        return;
+    }
 
     const url = `${WS_URL}?token=${encodeURIComponent(authToken || 'guest_token')}`;
     console.log('[SignBridge] Connecting WebSocket to', url);
@@ -75,7 +90,7 @@ function connectWebSocket() {
     };
 
     ws.onerror = (err) => {
-        console.warn('[SignBridge] WebSocket error (server might be offline, using client fallback):', err);
+        console.warn('[SignBridge] WebSocket connection error (backend may have closed):', err);
     };
 
     ws.onclose = (ev) => {
