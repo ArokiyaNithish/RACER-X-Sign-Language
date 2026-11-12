@@ -20,6 +20,7 @@
         detecting: false,
         avatarOn: false,
         ttsOn: true,
+        mode: 'sign',      // 'sign' or 'listen'
     };
 
     let meetingObserver = null;
@@ -51,6 +52,9 @@
         // Listen for sign detection events
         document.addEventListener('sb:signDetected', onSignDetected);
 
+        // Listen for bidirectional mode changes (Sign vs Listen)
+        document.addEventListener('sb:modeChanged', (e) => setCommunicationMode(e.detail?.mode));
+
         // Listen for toggle events from overlay buttons
         document.addEventListener('sb:toggle', (e) => toggleFeature(e.detail));
 
@@ -68,12 +72,13 @@
     // ── Load Settings ────────────────────────────
     async function loadSettings() {
         return new Promise(resolve => {
-            chrome.storage.local.get(['sb_settings', 'sb_token', 'sb_user', 'prefs'], (data) => {
+            chrome.storage.local.get(['sb_settings', 'sb_token', 'sb_user', 'prefs', 'sb_mode'], (data) => {
                 const s = data.sb_settings || {};
                 const p = data.prefs || {};
                 state.signVoice = s.signVoice ?? p.voiceEnabled ?? true;
                 state.voiceSign = s.voiceSign ?? false;
                 state.record = s.record ?? p.recordingEnabled ?? false;
+                state.mode = data.sb_mode || 'sign';
                 applySettings();
                 resolve();
             });
@@ -249,9 +254,39 @@
         document.dispatchEvent(new CustomEvent('sb:phraseReady', { detail: phrase }));
     }
 
+    // ── Bidirectional Mode Handler (Sign vs Listen) ──
+    function setCommunicationMode(mode) {
+        if (!mode) return;
+        state.mode = mode;
+        console.log(PREFIX, 'Setting communication mode to:', mode);
+
+        if (mode === 'sign') {
+            // Sign Mode: deaf user signs -> camera detection on, TTS on, speech listener off
+            window.__sbSpeechListener?.stop();
+            startDetection();
+            if (window.__sbOverlay) window.__sbOverlay.setMode('sign');
+        } else if (mode === 'listen') {
+            // Listen Mode: hearing participant speaks -> speech listener on, avatar on, camera idle
+            stopDetection();
+            enableAvatar();
+            window.__sbSpeechListener?.start();
+            if (window.__sbOverlay) window.__sbOverlay.setMode('listen');
+        }
+
+        // Save mode to chrome storage
+        try {
+            chrome.storage.local.set({ sb_mode: mode });
+        } catch (e) {}
+    }
+
     // ── Message Handler (from background / popup) ─
     function handleMessage(msg) {
         switch (msg.type) {
+            case 'SET_COMMUNICATION_MODE':
+            case 'SET_MODE':
+                setCommunicationMode(msg.mode);
+                break;
+
             case 'START_SIGN_DETECTION':
                 startDetection();
                 break;

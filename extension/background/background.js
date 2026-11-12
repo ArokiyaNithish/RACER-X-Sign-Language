@@ -196,6 +196,17 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
             }
             break;
 
+        // ── Communication Mode Relay (Sign vs Listen) ──
+        case 'SET_COMMUNICATION_MODE':
+            broadcastToContent({ type: 'SET_COMMUNICATION_MODE', mode: msg.mode });
+            sendResponse({ ok: true });
+            break;
+
+        case 'SPEECH_HEARD':
+            broadcastToContent({ type: 'SPEECH_HEARD', text: msg.text });
+            sendResponse({ ok: true });
+            break;
+
         // ── Settings update ──
         case 'SETTINGS_UPDATE':
             broadcastToContent({ type: 'SETTINGS_UPDATE', settings: msg.settings });

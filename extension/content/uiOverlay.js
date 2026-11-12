@@ -227,6 +227,116 @@
         transition: width 0.3s ease;
       }
 
+      /* ── Mode Switcher Tabs (Sign vs Listen) ── */
+      .sb-mode-switch-wrap {
+        display: flex;
+        background: rgba(0, 0, 0, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 3px;
+        gap: 4px;
+        margin-bottom: 2px;
+      }
+
+      .sb-mode-tab {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 8px 6px;
+        border-radius: 9px;
+        border: 1px solid transparent;
+        background: transparent;
+        color: #9aa0a6;
+        font-size: 11.5px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        font-family: inherit;
+      }
+
+      .sb-mode-tab:hover {
+        color: #fff;
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      .sb-mode-tab.active-sign {
+        background: rgba(0, 212, 255, 0.18);
+        border-color: rgba(0, 212, 255, 0.5);
+        color: #00D4FF;
+        box-shadow: 0 0 14px rgba(0, 212, 255, 0.25);
+      }
+
+      .sb-mode-tab.active-listen {
+        background: rgba(168, 85, 247, 0.22);
+        border-color: rgba(168, 85, 247, 0.5);
+        color: #c084fc;
+        box-shadow: 0 0 14px rgba(168, 85, 247, 0.25);
+      }
+
+      /* ── Speech Dialogue Box (Listen Mode) ── */
+      #sb-dialogue-box {
+        background: rgba(25, 18, 42, 0.85);
+        border: 1px solid rgba(168, 85, 247, 0.4);
+        border-radius: 12px;
+        padding: 10px 12px;
+        display: none;
+        flex-direction: column;
+        gap: 6px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), inset 0 0 12px rgba(168, 85, 247, 0.1);
+      }
+
+      .sb-dialogue-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 9.5px;
+        font-weight: 700;
+        color: #c084fc;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+      }
+
+      .sb-dialogue-chip {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .sb-pulse-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #a855f7;
+        box-shadow: 0 0 8px #a855f7;
+        animation: sb-dialogue-pulse 1.4s infinite ease-in-out;
+      }
+
+      @keyframes sb-dialogue-pulse {
+        0%, 100% { opacity: 0.4; transform: scale(0.9); }
+        50% { opacity: 1; transform: scale(1.2); }
+      }
+
+      #sb-dialogue-text {
+        font-size: 13.5px;
+        color: #f3e8ff;
+        font-weight: 600;
+        line-height: 1.4;
+        min-height: 36px;
+        max-height: 80px;
+        overflow-y: auto;
+      }
+
+      .sb-avatar-status-badge {
+        font-size: 9px;
+        color: #00ffa0;
+        background: rgba(0, 255, 160, 0.12);
+        padding: 2px 6px;
+        border-radius: 4px;
+        border: 1px solid rgba(0, 255, 160, 0.3);
+      }
+
       /* Quick Action Buttons */
       .sb-quick-btns {
         display: grid;
@@ -449,18 +559,43 @@
         </div>
       </div>
       <div id="sb-overlay-body">
+        <!-- Dual Mode Switcher: Sign vs Listen -->
+        <div class="sb-mode-switch-wrap">
+          <button class="sb-mode-tab active-sign" id="sb-mode-sign" onclick="window.__sbSetMode('sign')">
+            <span>🤟</span> Sign Mode
+          </button>
+          <button class="sb-mode-tab" id="sb-mode-listen" onclick="window.__sbSetMode('listen')">
+            <span>👂</span> Listen Mode
+          </button>
+        </div>
+
         <div class="sb-status-row">
-          <span id="sb-status-text">🔴 Sign Translation Off</span>
+          <span id="sb-status-text">🟢 Sign Mode Active</span>
           <span id="sb-fps-badge" style="font-size:10px; color:#5f6368;">Ready</span>
         </div>
-        <div class="sb-detection-box">
-          <div class="sb-det-label">Recognized Sign Gesture</div>
+
+        <!-- 1. Sign Mode: Live Camera Sign Gesture Output -->
+        <div id="sb-detection-box-wrap" class="sb-detection-box">
+          <div class="sb-det-label">Recognized Sign Gesture (You)</div>
           <div id="sb-detected-sign">—</div>
           <div id="sb-confidence-bar-wrap"><div id="sb-confidence-bar"></div></div>
         </div>
+
+        <!-- 2. Listen Mode: Speech from Meeting -> Avatar Signs Back -->
+        <div id="sb-dialogue-box" class="sb-dialogue-box">
+          <div class="sb-dialogue-header">
+            <div class="sb-dialogue-chip">
+              <span class="sb-pulse-dot"></span>
+              <span>Hearing Participant Speaking</span>
+            </div>
+            <span class="sb-avatar-status-badge">Avatar Active</span>
+          </div>
+          <div id="sb-dialogue-text">"Listening for voice from call..."</div>
+        </div>
+
         <div class="sb-quick-btns">
-          <button class="sb-quick-btn active" id="sb-toggle-detect" onclick="window.__sbToggleDetect()">
-            <span>🤟</span> Sign Mode
+          <button class="sb-quick-btn active" id="sb-toggle-avatar" onclick="window.__sbToggleAvatar()">
+            <span>🤖</span> Avatar
           </button>
           <button class="sb-quick-btn active" id="sb-toggle-skeleton" onclick="window.__sbToggleSkeleton()">
             <span>📐</span> Skeleton
@@ -959,6 +1094,40 @@
       updateSkeletonButtonState();
     },
 
+    setMode(mode) {
+      const btnSign = document.getElementById('sb-mode-sign');
+      const btnListen = document.getElementById('sb-mode-listen');
+      const detectionBox = document.getElementById('sb-detection-box-wrap');
+      const dialogueBox = document.getElementById('sb-dialogue-box');
+      const statusText = document.getElementById('sb-status-text');
+
+      if (mode === 'sign') {
+        btnSign?.classList.add('active-sign');
+        btnListen?.classList.remove('active-listen');
+        if (detectionBox) detectionBox.style.display = 'block';
+        if (dialogueBox) dialogueBox.style.display = 'none';
+        if (statusText) statusText.innerHTML = '🟢 Sign Mode Active';
+      } else {
+        btnSign?.classList.remove('active-sign');
+        btnListen?.classList.add('active-listen');
+        if (detectionBox) detectionBox.style.display = 'none';
+        if (dialogueBox) dialogueBox.style.display = 'flex';
+        if (statusText) statusText.innerHTML = '🟣 Listen Mode Active';
+      }
+      console.log(PREFIX, 'Overlay mode set to:', mode);
+    },
+
+    updateDialogue(text, isFinal) {
+      const diagEl = document.getElementById('sb-dialogue-text');
+      if (diagEl) {
+        diagEl.textContent = `"${text}"`;
+        if (isFinal) {
+          diagEl.style.color = '#00ffa0';
+          setTimeout(() => { if (diagEl) diagEl.style.color = '#f3e8ff'; }, 1000);
+        }
+      }
+    },
+
     show() {
       if (panel) panel.style.display = '';
       if (mediapipeHud && showHud) mediapipeHud.style.display = 'block';
@@ -969,6 +1138,12 @@
       if (mediapipeHud) mediapipeHud.style.display = 'none';
       if (meetVideoCanvas) meetVideoCanvas.style.display = 'none';
     }
+  };
+
+  // Global mode setter hook
+  window.__sbSetMode = (mode) => {
+    window.__sbOverlay.setMode(mode);
+    document.dispatchEvent(new CustomEvent('sb:modeChanged', { detail: { mode } }));
   };
 
   // Toggle callbacks for content.js

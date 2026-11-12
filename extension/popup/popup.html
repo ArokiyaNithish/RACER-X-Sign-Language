@@ -103,6 +103,30 @@
       <div class="status-dot" id="status-dot" title="Google Meet Status"></div>
     </div>
 
+    <!-- Dual Mode Switcher: Sign vs Listen -->
+    <div class="mode-switcher-container glass-card">
+      <div class="mode-switcher-header">
+        <span class="mode-switcher-label">Active Communication Mode</span>
+        <span class="mode-active-indicator" id="mode-active-indicator">🤟 Sign Active</span>
+      </div>
+      <div class="mode-tabs">
+        <button id="btn-mode-sign" class="mode-tab active-sign" type="button">
+          <span class="mode-tab-icon">🤟</span>
+          <div class="mode-tab-text">
+            <span class="mode-tab-title">Sign Mode</span>
+            <span class="mode-tab-sub">Camera Sign → Voice</span>
+          </div>
+        </button>
+        <button id="btn-mode-listen" class="mode-tab" type="button">
+          <span class="mode-tab-icon">👂</span>
+          <div class="mode-tab-text">
+            <span class="mode-tab-title">Listen Mode</span>
+            <span class="mode-tab-sub">Speech → Sign Avatar</span>
+          </div>
+        </button>
+      </div>
+    </div>
+
     <!-- Feature Cards -->
     <div class="features">
 
@@ -158,11 +182,18 @@
       ⬇ Download Meeting Summary PDF
     </button>
 
-    <!-- Live sign output -->
+    <!-- Live sign output (Sign Mode) -->
     <div class="detected-box glass-card" id="detected-box">
-      <div class="detected-label">Live Recognized Sign</div>
+      <div class="detected-label">Live Recognized Sign (You)</div>
       <div class="detected-text" id="detected-text">—</div>
       <div class="detected-phrase" id="detected-phrase"></div>
+    </div>
+
+    <!-- Live Speech & Avatar Output (Listen Mode) -->
+    <div class="detected-box glass-card hidden" id="speech-box">
+      <div class="detected-label" style="color: #c084fc;">🎙️ Hearing Participant Speaking</div>
+      <div class="detected-text" id="speech-text" style="font-size: 13.5px; line-height: 1.4; color: #f3e8ff;">"Listening for voice..."</div>
+      <div class="detected-phrase" id="avatar-sign-status" style="color: #00ffa0; font-weight: 600;">🤖 Sign Avatar Interpreting Live</div>
     </div>
 
   </div>

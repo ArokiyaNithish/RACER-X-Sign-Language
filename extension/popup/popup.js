@@ -42,13 +42,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     const detText = document.getElementById('detected-text');
     const detPhrase = document.getElementById('detected-phrase');
 
+    // Dual Mode Elements
+    const btnModeSign = document.getElementById('btn-mode-sign');
+    const btnModeListen = document.getElementById('btn-mode-listen');
+    const modeIndicator = document.getElementById('mode-active-indicator');
+    const speechBox = document.getElementById('speech-box');
+    const speechText = document.getElementById('speech-text');
+    const avatarSignStatus = document.getElementById('avatar-sign-status');
+
     // ── 1. Initialization ──────────────────────────────────────────
     try {
-        const data = await chrome.storage.local.get(['currentUser', 'prefs', 'sb_token']);
+        const data = await chrome.storage.local.get(['currentUser', 'prefs', 'sb_token', 'sb_mode']);
         if (data.currentUser && (data.currentUser.uid || data.currentUser.userId)) {
             showScreen(scrDash);
             populateDashboard(data.currentUser);
             initToggles(data.prefs || {});
+            setPopupMode(data.sb_mode || 'sign', false);
         } else {
             showScreen(scrSignIn);
         }
@@ -285,14 +294,59 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // Listen for incoming detection data
+    // ── Mode Switcher Logic (Sign vs Listen) ────────
+    async function setPopupMode(mode, broadcast = true) {
+        if (mode === 'sign') {
+            btnModeSign?.classList.add('active-sign');
+            btnModeListen?.classList.remove('active-listen');
+            if (modeIndicator) {
+                modeIndicator.textContent = "🤟 Sign Active";
+                modeIndicator.style.color = "#00D4FF";
+                modeIndicator.style.borderColor = "rgba(0, 212, 255, 0.4)";
+                modeIndicator.style.background = "rgba(0, 212, 255, 0.15)";
+            }
+            detBox?.classList.remove('hidden');
+            speechBox?.classList.add('hidden');
+        } else {
+            btnModeSign?.classList.remove('active-sign');
+            btnModeListen?.classList.add('active-listen');
+            if (modeIndicator) {
+                modeIndicator.textContent = "👂 Listen Active";
+                modeIndicator.style.color = "#c084fc";
+                modeIndicator.style.borderColor = "rgba(168, 85, 247, 0.4)";
+                modeIndicator.style.background = "rgba(168, 85, 247, 0.18)";
+            }
+            detBox?.classList.add('hidden');
+            speechBox?.classList.remove('hidden');
+        }
+
+        if (broadcast) {
+            try {
+                await chrome.storage.local.set({ sb_mode: mode });
+                chrome.runtime.sendMessage({ type: "SET_COMMUNICATION_MODE", mode });
+                const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+                if (tabs && tabs[0]) {
+                    chrome.tabs.sendMessage(tabs[0].id, { type: "SET_COMMUNICATION_MODE", mode }).catch(() => {});
+                }
+            } catch (err) {}
+        }
+    }
+
+    btnModeSign?.addEventListener('click', () => setPopupMode('sign', true));
+    btnModeListen?.addEventListener('click', () => setPopupMode('listen', true));
+
+    // Listen for incoming detection & speech data
     try {
         chrome.runtime.onMessage.addListener((request) => {
-            if (request.type === "SIGN_RECOGNITION" && togSign.checked) {
+            if (request.type === "SIGN_RECOGNITION") {
                 detText.textContent = request.text || "—";
             }
-            if (request.type === "PHRASE_READY" && togSign.checked) {
+            if (request.type === "PHRASE_READY") {
                 detPhrase.textContent = request.text;
+            }
+            if (request.type === "SPEECH_HEARD") {
+                if (speechText) speechText.textContent = `"${request.text}"`;
+                if (avatarSignStatus) avatarSignStatus.textContent = `🤖 Avatar signed: "${request.text}"`;
             }
         });
     } catch (e) { }

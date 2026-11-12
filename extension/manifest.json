@@ -34,6 +34,7 @@
                 "content/signDetector.js",
                 "content/speechSynthesis.js",
                 "content/avatarRenderer.js",
+                "content/speechListener.js",
                 "content/meetingRecorder.js",
                 "content/content.js"
             ],

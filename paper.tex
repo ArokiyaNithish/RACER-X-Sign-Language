@@ -74,28 +74,24 @@ arokiyanithishj@gmail.com
 
 
 \begin{abstract}
-Standard recurrent neural architectures process streaming video by unrolling hidden state transitions at every incoming frame. When tracking suffers momentary occlusion, camera defocus, or motion blur, unconditioned recurrent cells absorb corrupt visual coordinates directly into temporal memory, triggering catastrophic drift during continuous sign language recognition. RACER X resolves this failure through causal state updating conditioned explicitly on sensor reliability and spatial motion agreement. To differentiate planar gesture ambiguities, the network models non planar hand trajectories using Frenet Serret differential geometry, deriving curvature ($\kappa$) and torsion ($\tau$) invariants alongside asymmetric cross hand attention that captures dominant versus nondominant manual dependencies. Crucially, an adaptive gating mechanism ($g_t$) selectively throttles state propagation whenever landmark confidence degrades, freezing recurrent memory across corrupted intervals until clean tracking resumes. A kinematic loss regularizer enforces physical continuity by penalizing instantaneous trajectory jerk during training. Evaluated on a comprehensive Indian Sign Language corpus comprising 9,168 continuous video sequences across 2,748 vocabulary classes, RACER X records 81.5\% recognition accuracy, 24.8\% word error rate, and 14.2\% character error rate, outperforming an identical baseline gated recurrent unit by 13.7 percentage points in sequence transcription error. Under severe synthetic disruption with 40\% joint landmark occlusion, the model maintains 32.3\% word error rate whereas conventional recurrent baselines degrade to 68.4\%. The complete architecture runs client side as a WebRTC browser extension compatible with Google Meet and Zoom, executing each frame in 24.3 ms at 41.2 FPS to deliver live synchronized captions alongside synthesized speech for deaf and hard of hearing signers.
+Sign language recognition while performing video calls involves the processing of video frames on an online basis without the knowledge of future frames. However, recurrent networks update their hidden states at every time step and the content in them can be affected due to the unreliability of the visual cues in terms of tracking, motion blur and lack of landmarks. In this paper, we introduce RACER X, a causal recurrent network, which updates its hidden state depending on the reliability of the landmarks and spatial-motion consistency. Our approach utilizes the differential invariants of Frenet-Serret, i.e., the curvature $(\kappa)$ and torsion $(\tau)$ for detecting the spatial motion which may look similar in planar projection. Asymmetric cross hand attention network models the relationship between the dominant hand and the assisting hand. The adaptive update gate ($g_t$) constrains the effect of the unreliable observations by using the previous hidden state in case of poor tracking quality. In addition, there is the physics-based kinematic loss which penalizes unnatural joint accelerations during training. In the benchmark dataset of Unified Indian Sign Language containing 9,168 video sequences and 2,748 vocabularies, RACER X achieves an accuracy of 81.5\%, Word Error Rate (WER) of 24.8\% and Character Error Rate (CER) of 14.2\%. Our approach reduces the WER by 13.7 percentage points as compared to the GRU baseline. Moreover, with 40\% occlusion of landmarks, the WER of RACER X is 32.3\% as against 68.4\% of the standard baseline. Besides, the system is implemented as a WebRTC browser extension for Google Meet and Zoom. The WebRTC extension performs inference on each frame in 24.3 ms or approximately 41.2 FPS. The WebRTC extension generates the synchronized captions as well as synthetic speech in order to help sign language users communicate with others during video calls.
 \end{abstract}
 
-
-
 \begin{IEEEkeywords}
-Continuous sign language recognition, Frenet Serret differential invariants, cross hand attention, landmark reliability gating, kinematic regularization, causal recurrent networks, WebRTC assistive teleconferencing.
+Continuous sign language recognition, Frenet Serret differential geometry, bilateral attention, landmark reliability, physics informed neural networks, causal recurrent networks, WebRTC assistive teleconferencing.
 \end{IEEEkeywords}
 
 
 \section{Introduction}
 
-Continuous sign language recognition during live video calls has to meet several practical demands. The system must process frames in sequence, predict signs without access to future frames, and finish each frame within a short time. These tasks become harder when visual tracking is disturbed by noise. Rapid hand movements may cause motion blur \cite{b3}. Hands can overlap the torso or cover each other, making some signs difficult to detect \cite{b4,b5}. Single camera landmark extraction can also cause sudden shifts in the estimated hand positions \cite{b6}.
+In the case of online sign language recognition on video calls, the algorithm needs to sequentially process each received frame and do recognition based only on current frame without any help of future frames. The both constraints are difficult to achieve because of possible influence of tracking on visual data. Fast hand movements lead to motion blurs \cite{b3}. Sometimes hands become occluded by the torso or by another hand. It causes difficulties with recognition of some signs \cite{b4,b5}. Also, the landmarks extraction using one camera causes the jumps in the estimation of hand positions \cite{b6}.
 
-Models such as LSTMs, GRUs, and boundary adaptive encoders \cite{b7} are widely used to learn the temporal patterns of sign language. They are often trained with Connectionist Temporal Classification (CTC) \cite{b8}. However, these models update their memory at every time step, even when the visual input is unclear. Lost tracking and changes in keypoint positions can affect the stored state and reduce the accuracy of later predictions. This may result in incorrect token substitutions or extra tokens during decoding. Existing browser extensions mainly offer basic sign lookup during video calls \cite{b9}. Translating complete sentences while visual conditions keep changing remains difficult.
-
-To address this issue, this paper introduces RACER X, a causal recurrent framework that limits the effect of unreliable visual inputs on temporal feature representations. The proposed framework has five main technical contributions:
+Recurrent networks such as Long Short Term Memory (LSTM) networks \cite{b2}, Gated Recurrent Units (GRUs) and boundary adaptive encoder \cite{b7} are used in order to learn temporal patterns in signs. The recurrent networks are usually trained using Connectionist Temporal Classification (CTC) \cite{b8} without frame-level annotations. But the recurrent networks update their hidden states at every time step in contrast to the visual input which may be unreliable sometimes. There are some browser extensions that provide just basic sign look up function during the video call \cite{b9}. 
 
 \begin{enumerate}
 
     \item \textbf{Frenet Serret Trajectory Geometry:}
-    We develop discrete methods to estimate three dimensional curvature ($\kappa_t$) and torsion ($\tau_t$) from hand trajectories. These measures help identify spatial movements that may appear similar when viewed only through two dimensional projections.
+    We propose discrete algorithms to compute three-dimensional trajectory curvature ($\kappa_t$) and torsion ($\tau_t$).
 
     \item \textbf{Bilateral Cross Hand Attention:}
     We introduce an asymmetric attention layer that models the spatial coordination between the primary signing hand and the passive base hand.
@@ -172,7 +168,7 @@ where $\hat{P}_t$ denotes normalized keypoints, $S_t$ and $M_t$ represent spatia
 \node[inno] (rel_conf) at (6.4, -3.1) {\textbf{Gating Metric Inputs}\\Reliability $R_t$ \& Agreement $A_t$};
 
 % Row 4: Causal State Update & Dynamic Gate
-\node[box] (state_update) at (2.0, -4.7) {Causal State Evolution\\Adaptive Memory Update};
+\node[box] (state_update) at (2.0, -4.7) {Causal State Evolution\\$H_t = \text{CellUpdate}(\tilde{H}_t, H_{t-1}, g_t)$};
 \node[gate] (gate_node) at (6.4, -4.7) {\textbf{Dynamic State Gate}\\$g_t = \sigma(W_g x_t + \alpha_R R_t + \alpha_A A_t)$};
 
 % Row 5: Innovation 4 & CTC Decoder
@@ -238,7 +234,7 @@ AI4Bharat INCLUDE \cite{b10} & Lexical (15 domains) & 4,284 & 262 classes & 3,42
 We assembled an Indian Sign Language benchmark uniting continuous news broadcasts with standardized vocabulary signs (Table~\ref{tab:dataset_summary}), yielding $N = 9{,}168$ physical video files:
 \begin{enumerate}
     \item \textbf{Continuous ISH News Corpus (Source 1):}
-    We collected 4,884 continuous video sequences from official India Signing Hub broadcasts using an automated alignment pipeline. The videos show Deaf signers presenting national news. They include natural transitions between signs, epenthetic transition sweeps, facial markers, and changes in camera framing.
+    We collected 4,884 continuous video sequences from official India Signing Hub broadcasts using an automated alignment pipeline. The videos have deaf people sign the national news. They include natural transitions between signs, epenthetic transition sweeps, facial markers, and changes in camera framing.
 
     \item \textbf{AI4Bharat INCLUDE Benchmark (Source 2):}
     We included 4,284 clips from the INCLUDE dataset \cite{b10}. The clips cover 262 lexical classes across 15 domains and were recorded with multiple independent signers under different lighting conditions.
@@ -256,25 +252,26 @@ producing the normalized matrix $\hat{P}_t \in \mathbb{R}^{K \times 3}$.
 
 \subsection{Frenet Serret Differential Kinematics}
 
-Planar camera projections discard depth. Consequently, two gestures with disparate three dimensional spatial trajectories often map to nearly identical image coordinates when hands sweep toward or away from the lens. To isolate out of plane movement, we construct moving Frenet Serret frames along the dominant wrist and index trajectories. At sampling step $\Delta t$, backward differences over normalized joint coordinates $\hat{P}_t$ yield instantaneous velocity $V_t$, acceleration $A_t$, and jerk $J_t$:
+Two motions that are not alike but follow different paths in 3D space turn out to be extremely alike planar motions as both of their hands approach or recede from the camera. Using backward differentiation of the normalized position vector $\hat{P}_t$ at each time step $\Delta t$, we get $V_t$, $A_t$, and $J_t$.
+
 \begin{equation}
 V_t = \frac{\Delta \hat{P}_t}{\Delta t}, \quad
 A_t = \frac{\Delta V_t}{\Delta t}, \quad
-J_t = \frac{\Delta A_t}{\Delta t},
-\label{eq:kinematics}
+J_t = \frac{\Delta A_t}{\Delta t}
 \end{equation}
+
 where $\Delta X_t = X_t - X_{t-1}$ is the temporal step difference operator.
 
-From these kinematic vectors, we construct the orthonormal Frenet trihedron consisting of tangent $T_t$, binormal $B_t$, and principal normal $N_t$:
+The unit tangent $T_t$, unit binormal $B_t$, and unit principal normal $N_t$ are defined as:
 \begin{equation}
 \begin{aligned}
-T_t &= \frac{V_t}{|V_t|_2 + \epsilon}, \quad B_t = \frac{V_t \times A_t}{|V_t \times A_t|_2 + \epsilon}, \\
+T_t &= \frac{V_t}{|V_t|_2 + \epsilon}, \quad B_t = \frac{V_t \times A_t}{|V_t \times A_t|_2 + \epsilon}, \
 N_t &= B_t \times T_t.
 \end{aligned}
 \label{eq:frenet_frame}
 \end{equation}
 
-The trajectory curvature $\kappa_t$ captures path deflection, while torsion $\tau_t$ measures out of plane twisting:
+These vectors are used to calculate the instantaneous three dimensional curvature $\kappa_t$, which describes how the path bends, and torsion $\tau_t$, which describes its twist out of the plane:
 \begin{equation}
 \kappa_t = \frac{|V_t \times A_t|_2}{|V_t|_2^3 + \epsilon},
 \label{eq:curvature_math}
@@ -322,11 +319,11 @@ Tracking failures can cause sudden changes in detected coordinates and increase 
 R_t = \bar{c}_t \cdot \exp\left(-\frac{1}{2}\|\bar{J}_t\|_2\right),
 \label{eq:reliability_math}
 \end{equation}
-where $\bar{c}_t = \frac{1}{K}\sum_{i=1}^{K} c_{t,i}$ represents the mean detector confidence, and $\|\bar{J}_t\|_2$ is the normalized jerk. Under stable tracking, $R_t$ approaches 1. When key point jitter occurs, it approaches 0.
+where $\bar{c}_t = \frac{1}{K}\sum_{i=1}^{K} c_{t,i}$ represents the mean detector confidence, and $\|\bar{J}_t\|_2$ is the normalized jerk. Under stable tracking, $R_t$ approaches 1. If jitter for the key point exists, then it becomes 0.
 
 \subsubsection{Spatial Motion Agreement \texorpdfstring{($A_t$)}{(A_t)}}
 
-During signing, posture $S_t$ and frame motion $M_t$ should follow similar directions. Both streams are mapped into a shared space using the linear mappings $f_{sp}$ and $f_{mp}$. Their agreement, $A_t \in [-1,1]$, is calculated using cosine similarity:
+The above mentioned sequences are mapped into the same space through the linear projections $f_{sp}$ and $f_{mp}$. Their agreement, $A_t \in [-1,1]$, is calculated using cosine similarity:
 \begin{equation}
 A_t = \frac{f_{sp}(S_t) \cdot f_{mp}(M_t)}
 {\|f_{sp}(S_t)\|_2 \|f_{mp}(M_t)\|_2 + \epsilon}.
@@ -343,7 +340,7 @@ The candidate recurrent state combines spatial and motion features:
 where the reset gate is defined as:
 \begin{equation}
 r_t = \sigma(W_{rs} S_t + W_{rm} M_t + U_r H_{t-1} + b_r).
-\end{equation}. The update gate $g_t \in [0, 1]^{d_h}$ explicitly conditions on $R_t$ and $A_t$:
+\end{equation}. The update gate $g_t \in [0, 1]^{d_h}$ is explicitly controlled by both $R_t$ and $A_t$:
 \begin{equation}
 g_t = \sigma\left(W_g [S_t, M_t, H_{t-1}] + \alpha_R R_t + \alpha_A A_t + b_g\right),
 \label{eq:racerx_gate_math}
@@ -354,44 +351,41 @@ H_t = g_t \odot \tilde{H}_t + (1 - g_t) \odot H_{t-1}.
 \label{eq:racerx_update_math}
 \end{equation}
 
-When tracking is lost ($R_t \to 0$) or posture and motion are inconsistent ($A_t \to -1$), the gate closes ($g_t \to \mathbf{0}$). The recurrent cell preserves its prior state ($H_t \approx H_{t-1}$), ignoring distorted inputs.
+When $R_t \to 0$ and the match between the motions is poor, $A_t \to -1$, the gate will close itself, and $g_t \to \mathbf{0}$. In this case, there will be no modification of the state of the recurrent neuron and $H_t \approx H_{t-1}$.
 
 \subsection{Physics Informed Kinematic Regularization}
 
-Unconstrained coordinate regression frequently suffers from tracking chatter and sensor dropouts. To enforce physiological plausibility across sequential frames, we impose a kinematic consistency constraint penalizing deviations from local linear momentum:
+The cost function associated with the error in the joint angle estimation and the expected value of the joint angles with respect to the velocity estimate is:
 
 \begin{equation}
 \mathcal{L}_{\text{physics}} = \frac{1}{T-1} \sum_{t=1}^{T-1} \left\| \Delta \hat{P}_t - V_t \Delta t \right\|_F^2,
-\label{eq:physics_loss_math}
 \end{equation}
 
-Here $\Delta \hat{P}_t = \hat{P}_{t+1} - \hat{P}_t$ measures the empirical frame to frame displacement across all tracked joints, while $V_t \Delta t$ provides the first order ballistic projection. Evaluating this discrepancy under matrix Frobenius norm $\|\cdot\|_F$ penalizes abrupt unphysical accelerations without impeding natural articulation velocity.
+In the above equation, $\Delta \hat{P}_t = \hat{P}_{t+1} - \hat{P}_t$ is the frame-to-frame motion of all the tracked joints, and $V_t \Delta t$ is the first order approximation. 
 
-Overall network weights update jointly against sequence alignment errors and mechanical violations:
 
 \begin{equation}
 \mathcal{L}_{\text{total}} = \mathcal{L}_{\text{CTC}} + \lambda_{\text{phys}} \, \mathcal{L}_{\text{physics}},
-\label{eq:total_loss_math}
 \end{equation}
 
-assigning scalar weight $\lambda_{\text{phys}} = 0.05$. This empirical factor bounds high frequency landmark jitter during fast transitions without flattening purposeful deceleration at sign boundaries.
+where $\lambda_\text{phys} = 0.05$ controls smoothness while keeping movement discontinuities intact.
 
 \subsection{Bayesian Class Balanced CTC Sequence Decoding}
 
-Standard CTC decoding tends to favor common words when the training data is unevenly distributed. To reduce this bias, we use class priors during beam search:
+In CTC decoding, the default tendency is to choose frequent words if the data distribution in the training set is not even. To reduce this bias, we use class priors during beam search:
 
 \begin{equation}
 \log P_{\text{balanced}}(W \mid X) = \log P_{\text{CTC}}(W \mid X) - \beta \log \mathcal{P}_{\text{prior}}(W),
 \label{eq:bayesian_math}
 \end{equation}
-where $\mathcal{P}_{\text{prior}}(W) = \frac{\text{Freq}(W)}{\sum_{w'} \text{Freq}(w')}$ represents the training frequency of each class. The value $\beta = 0.35$ reduces the preference for common glosses while retaining rare classes.
+where $\mathcal{P}_{\text{prior}}(W) = \frac{\text{Freq}(W)}{\sum_{w'} \text{Freq}(w')}$. Parameter value $\beta = 0.35$ reduces preference for common glosses while keeping rare classes.
 
 \subsection{Assistive Browser Extension for Google Meet and Zoom}
 
-RACER-X runs as a WebRTC browser extension through three asynchronous steps:
+How RACER-X works as a WebRTC extension in the browser has three steps as follows:
 
 \begin{enumerate}
-    \item \textbf{WebRTC Media Stream Hook:} A JavaScript content script captures the local webcam feed using the \texttt{HTMLVideoElement.captureStream()} API. This avoids adding call latency for remote participants.
+    \item \textbf{WebRTC Media Stream:} The JavaScript content script grabs the video through the use of the function \texttt{HTMLVideoElement.captureStream()}.This avoids adding call latency for remote participants.
 
     \item \textbf{WebSocket IPC:} Video frames are sent through a local loopback connection (\texttt{ws://localhost:8765}) to the Python runtime.
 
@@ -473,7 +467,7 @@ Reliability + Agreement ($R_t + A_t$) & 79.8\% & 25.1\% & 15.0\% \\
 \end{table}
 \vspace{-1mm}
 
-Table~\ref{tab:overall_performance} lists performance across 918 held out test sequences, while Fig.~\ref{fig:qualitative_results} shows the live sequence translation screen. The standard GRU attains only 64.2\% accuracy with 38.5\% WER, tripped up by landmark chatter. Adding spatial joint coordinates and velocities brings accuracy to 71.8\% (31.2\% WER). Gating updates on reliability ($R_t$) and spatial motion agreement ($A_t$) cuts word error to 27.6\% and 25.1\%, because blurred frames no longer write corrupted states into memory. The complete RACER-X model records 81.5\% accuracy, 24.8\% WER, and 14.2\% CER. Its WER is 13.7 percentage points lower than that of the baseline.
+Table~\ref{tab:overall_performance} lists performance across 918 held out test sequences, while Fig.~\ref{fig:qualitative_results} shows the live sequence translation screen. The standard GRU attains only 64.2\% accuracy with 38.5\% WER, tripped up by landmark chatter. Adding spatial joint coordinates and velocities brings accuracy to 71.8\% (31.2\% WER). Reliability Gating for $R_t$ and motion agreement for $A_t$ decreases word error rate to 27.6\% and 25.1\%. Currently, fuzzy frames have no influence on memory states. The complete RACER-X model records 81.5\% accuracy, 24.8\% WER, and 14.2\% CER. Its WER is 13.7 percentage points lower than that of the baseline.
 
 \subsection{Ablation Study}
 \vspace{-1.5mm}
@@ -523,7 +517,7 @@ Level 3 (40\% Severe Occlusion) & 68.4\% & 41.2\% & \textbf{32.3\%} \\
 \end{table}
 \vspace{-1mm}
 
-We tested the model under several synthetic corruption conditions to measure its tolerance to degraded landmarks. As shown in Table~\ref{tab:reliability}, with 40\% keypoint loss, the baseline GRU reaches 68.4\% WER, an increase of 29.9 percentage points. Missing joints add zero values to the recurrent state matrices, which can affect state updates. RACER-X has a WER of 32.3\%, up 7.5 percentage points from the clean video result. When landmarks are missing, $R_t$ approaches zero and closes the update gate, allowing the previous state vector $\mathbf{h}_{t-1}$ to be retained.
+ As shown in Table~\ref{tab:reliability}, with 40\% keypoint loss, the baseline GRU reaches 68.4\% WER, an increase of 29.9 percentage points. RACER-X has a WER of 32.3\%, up 7.5 percentage points from the clean video result. When landmarks are missing, $R_t$ approaches zero and closes the update gate, allowing the previous state vector $\mathbf{h}_{t-1}$ to be retained.
 \vspace{-1.5mm}
 
 \begin{table}[H]
@@ -652,13 +646,13 @@ RACER-X introduces a causal recurrent architecture for continuous sign language 
 The current system has some limitations that affect its operation:
 
 \begin{enumerate}
-    \item \textbf{Extended Landmark Loss:} The gating mechanism handles brief tracking failures. If the view remains blocked for several seconds, the system may lose sign information, leading to token deletions.
+    \item \textbf{Extended Landmark Loss:} The gating mechanism handles brief tracking failures. For the scenario where the image does not load within a second, it implies that the image is unable to receive any sign information, which results in the removal of the tokens.
 
-    \item \textbf{Severe Camera Angles:} Monocular 3D depth estimates become less reliable when the camera angle exceeds $\pm 45^\circ$ from the chest plane. This can affect the estimated binormals and torsion values.
+    \item \textbf{Very High Camera Angle:} In the case of the monocular depth estimation in 3D, the results will not be accurate if the camera angle from the chest is either greater than or less than ±45°. The binormal and torsion will also be estimated incorrectly.
 
-    \item \textbf{Facial Grammar Cues:} The system captures hand and upper body landmarks in detail. Subtle grammatical cues, such as eyebrow movements used in questions, rely on sparse facial landmarks instead of continuous 3D surface meshes.
+    \item \textbf{Facial Grammar Information:} This system performs a complete analysis of the hands and the upper body landmarks. For instance, making of eyebrows for forming a question using facial landmarks, not 3D surface meshes.
 
-    \item \textbf{Hand Dominance Assumption:} The bilateral attention mechanism assumes that the right hand is dominant. Left handed users must change this setting during initial setup.
+    \item \textbf{Dominant Hand:} The Bilateral Attention Model presumes that the right hand is the dominant hand. The people with dominant hand left should modify their settings.
 \end{enumerate}
 
 
