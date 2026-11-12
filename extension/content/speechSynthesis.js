@@ -88,7 +88,11 @@
         };
 
         utterance.onerror = (err) => {
-            console.error(PREFIX, 'TTS error:', err.error);
+            if (err.error === 'interrupted' || err.error === 'canceled') {
+                isSpeaking = false;
+                return;
+            }
+            console.warn(PREFIX, 'TTS error:', err.error);
             isSpeaking = false;
             processQueue();
         };
@@ -117,7 +121,7 @@
             }
 
             if (!chatInput) {
-                console.warn(PREFIX, 'Meet chat input not found.');
+                // Meet chat drawer is closed or user is in meeting lobby; skip silent
                 return;
             }
 
@@ -154,7 +158,7 @@
             console.log(PREFIX, 'Injected to Meet chat:', formattedText);
 
         } catch (err) {
-            console.error(PREFIX, 'Chat injection error:', err);
+            // Silently handle chat DOM changes without flagging extension errors
         }
     }
 
@@ -164,7 +168,9 @@
         if (ttsEnabled) enqueueSpeak(text);
         if (chatEnabled) injectToMeetChat(text);
 
-        if (window.__sbOverlay) window.__sbOverlay.appendTranscript(text);
+        if (window.__sbOverlay && typeof window.__sbOverlay.appendTranscript === 'function') {
+            window.__sbOverlay.appendTranscript(text);
+        }
     }
 
     // ── External API ─────────────────────────────

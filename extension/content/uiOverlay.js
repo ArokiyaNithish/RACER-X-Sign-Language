@@ -337,6 +337,39 @@
         border: 1px solid rgba(0, 255, 160, 0.3);
       }
 
+      .sb-dialogue-test-chips {
+        display: flex;
+        gap: 5px;
+        flex-wrap: wrap;
+        margin-top: 5px;
+        padding-top: 5px;
+        border-top: 1px solid rgba(168, 85, 247, 0.2);
+      }
+
+      .sb-test-chip {
+        font-size: 9.5px;
+        font-weight: 600;
+        background: rgba(168, 85, 247, 0.18);
+        border: 1px solid rgba(168, 85, 247, 0.35);
+        color: #e9d5ff;
+        padding: 3px 8px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        user-select: none;
+      }
+
+      .sb-test-chip:hover {
+        background: rgba(168, 85, 247, 0.35);
+        color: #fff;
+        border-color: #c084fc;
+        transform: translateY(-1px);
+      }
+
+      .sb-test-chip:active {
+        transform: translateY(0);
+      }
+
       /* Quick Action Buttons */
       .sb-quick-btns {
         display: grid;
@@ -561,10 +594,10 @@
       <div id="sb-overlay-body">
         <!-- Dual Mode Switcher: Sign vs Listen -->
         <div class="sb-mode-switch-wrap">
-          <button class="sb-mode-tab active-sign" id="sb-mode-sign" onclick="window.__sbSetMode('sign')">
+          <button class="sb-mode-tab active-sign" id="sb-mode-sign">
             <span>🤟</span> Sign Mode
           </button>
-          <button class="sb-mode-tab" id="sb-mode-listen" onclick="window.__sbSetMode('listen')">
+          <button class="sb-mode-tab" id="sb-mode-listen">
             <span>👂</span> Listen Mode
           </button>
         </div>
@@ -591,19 +624,26 @@
             <span class="sb-avatar-status-badge">Avatar Active</span>
           </div>
           <div id="sb-dialogue-text">"Listening for voice from call..."</div>
+          <div class="sb-dialogue-test-chips">
+            <span class="sb-test-chip" data-speak="Hello welcome">👋 Hello</span>
+            <span class="sb-test-chip" data-speak="Thank you">🙏 Thanks</span>
+            <span class="sb-test-chip" data-speak="How are you">❓ How Are You</span>
+            <span class="sb-test-chip" data-speak="Yes agree">✅ Yes</span>
+            <span class="sb-test-chip" data-speak="Good project">👍 Good</span>
+          </div>
         </div>
 
         <div class="sb-quick-btns">
-          <button class="sb-quick-btn active" id="sb-toggle-avatar" onclick="window.__sbToggleAvatar()">
+          <button class="sb-quick-btn active" id="sb-toggle-avatar">
             <span>🤖</span> Avatar
           </button>
-          <button class="sb-quick-btn active" id="sb-toggle-skeleton" onclick="window.__sbToggleSkeleton()">
+          <button class="sb-quick-btn active" id="sb-toggle-skeleton">
             <span>📐</span> Skeleton
           </button>
-          <button class="sb-quick-btn active" id="sb-toggle-tts" onclick="window.__sbToggleTTS()">
+          <button class="sb-quick-btn active" id="sb-toggle-tts">
             <span>🔊</span> Voice TTS
           </button>
-          <button class="sb-quick-btn" id="sb-toggle-hud" onclick="window.__sbToggleHud()">
+          <button class="sb-quick-btn" id="sb-toggle-hud">
             <span>🪟</span> Preview HUD
           </button>
         </div>
@@ -726,6 +766,55 @@
       showHud = false;
       updateSkeletonButtonState();
     };
+
+    // Mode Switcher Buttons (Sign vs Listen)
+    const btnSign = document.getElementById('sb-mode-sign');
+    if (btnSign) {
+      btnSign.onclick = (e) => {
+        e.preventDefault();
+        window.__sbSetMode('sign');
+      };
+    }
+
+    const btnListen = document.getElementById('sb-mode-listen');
+    if (btnListen) {
+      btnListen.onclick = (e) => {
+        e.preventDefault();
+        window.__sbSetMode('listen');
+      };
+    }
+
+    // Quick Test Chips inside Dialogue Box (instant avatar test)
+    document.querySelectorAll('.sb-test-chip').forEach(chip => {
+      chip.onclick = (e) => {
+        e.stopPropagation();
+        const phrase = chip.getAttribute('data-speak');
+        if (phrase && window.__sbSpeechListener) {
+          window.__sbSpeechListener.triggerPhrase(phrase);
+        }
+      };
+    });
+
+    // Quick Action Buttons
+    const btnAvatar = document.getElementById('sb-toggle-avatar');
+    if (btnAvatar) {
+      btnAvatar.onclick = () => window.__sbToggleAvatar();
+    }
+
+    const btnSkeleton = document.getElementById('sb-toggle-skeleton');
+    if (btnSkeleton) {
+      btnSkeleton.onclick = () => window.__sbToggleSkeleton();
+    }
+
+    const btnTTS = document.getElementById('sb-toggle-tts');
+    if (btnTTS) {
+      btnTTS.onclick = () => window.__sbToggleTTS();
+    }
+
+    const btnHud = document.getElementById('sb-toggle-hud');
+    if (btnHud) {
+      btnHud.onclick = () => window.__sbToggleHud();
+    }
   }
 
   function updateSkeletonButtonState() {
@@ -1125,6 +1214,12 @@
           diagEl.style.color = '#00ffa0';
           setTimeout(() => { if (diagEl) diagEl.style.color = '#f3e8ff'; }, 1000);
         }
+      }
+    },
+
+    appendTranscript(text) {
+      if (this.updateDialogue) {
+        this.updateDialogue(text, true);
       }
     },
 

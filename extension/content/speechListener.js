@@ -1,8 +1,9 @@
 // ════════════════════════════════════════════════════════════════
 // SignBridge — speechListener.js
-// Live Speech Recognition (Listen Mode)
-// Transcribes spoken speech from meeting participants and
-// routes text to Live Dialogue Box and Avatar Sign Interpreter
+// Dual-Source Live Speech Listener (Listen Mode)
+// 1. Google Meet Native Live Captions Observer (captures remote call audio)
+// 2. Web Speech Recognition API (captures direct microphone voice)
+// 3. Interactive Quick Test Trigger (for instant offline verification)
 // ════════════════════════════════════════════════════════════════
 
 (function () {
@@ -16,15 +17,17 @@
     let isListening = false;
     let shouldBeListening = false;
     let restartTimer = null;
-    let currentTranscript = '';
-    let lastFinalText = '';
+    let captionObserver = null;
+    let lastProcessedText = '';
+    let speechBlocked = false;
 
     // Check SpeechRecognition support
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
+    // ── 1. Speech Recognition (Web Speech API) ──────────────────
     function initRecognition() {
         if (!SpeechRecognition) {
-            console.warn(PREFIX, 'Web Speech API not supported in this browser environment.');
+            console.log(PREFIX, 'Web Speech API not available; relying on Meet caption observer and test chips.');
             return false;
         }
 
@@ -37,7 +40,8 @@
 
             recognition.onstart = () => {
                 isListening = true;
-                console.log(PREFIX, 'Speech recognition started. Listening for meeting voice...');
+                speechBlocked = false;
+                console.log(PREFIX, 'Speech listener active. Listening for voice in meeting...');
                 if (window.__sbOverlay) {
                     window.__sbOverlay.updateDialogue('Listening to call participants...', false);
                 }
@@ -60,146 +64,173 @@
                 const fullText = (final || interim).trim();
                 if (!fullText) return;
 
-                currentTranscript = fullText;
-
-                // Update on-screen dialogue box
                 if (window.__sbOverlay) {
                     window.__sbOverlay.updateDialogue(fullText, !!final);
                 }
 
-                // If final, trigger Avatar interpretation and notify extension
-                if (final && final.trim() !== lastFinalText) {
-                    lastFinalText = final.trim();
-                    console.log(PREFIX, 'Heard final speech:', lastFinalText);
-
-                    // Send to avatar for signing
-                    if (window.__sbAvatar) {
-                        window.__sbAvatar.show();
-                        window.__sbAvatar.signText(lastFinalText);
-                    }
-
-                    // Dispatch event for recording & logging
-                    document.dispatchEvent(new CustomEvent('sb:speechHeard', {
-                        detail: { text: lastFinalText, timestamp: Date.now() }
-                    }));
-
-                    // Send to popup / background
-                    try {
-                        chrome.runtime.sendMessage({
-                            type: 'SPEECH_HEARD',
-                            text: lastFinalText
-                        }).catch(() => {});
-                    } catch (e) {}
+                if (final && final.trim() !== lastProcessedText) {
+                    processSpeechText(final.trim());
                 }
             };
 
             recognition.onerror = (event) => {
-                // Ignore benign errors like no-speech or aborted during manual stop
                 if (event.error === 'no-speech' || event.error === 'aborted') {
                     return;
                 }
-                console.warn(PREFIX, 'Speech recognition error:', event.error);
+                if (event.error === 'not-allowed' || event.error === 'audio-capture') {
+                    speechBlocked = true;
+                    console.log(PREFIX, 'Mic in use by Google Meet. Captions and quick test chips remain active.');
+                    return;
+                }
+                console.log(PREFIX, 'Speech listener status:', event.error);
             };
 
             recognition.onend = () => {
                 isListening = false;
-                console.log(PREFIX, 'Speech recognition ended.');
-                // Auto-reconnect if Listen mode is still active
-                if (shouldBeListening) {
+                if (shouldBeListening && !speechBlocked) {
                     clearTimeout(restartTimer);
                     restartTimer = setTimeout(() => {
-                        if (shouldBeListening && !isListening) {
-                            try {
-                                recognition.start();
-                            } catch (e) {
-                                console.warn(PREFIX, 'Restart failed:', e);
-                            }
+                        if (shouldBeListening && !isListening && !speechBlocked) {
+                            try { recognition.start(); } catch (e) {}
                         }
-                    }, 300);
+                    }, 500);
                 }
             };
 
             return true;
         } catch (err) {
-            console.error(PREFIX, 'Failed to initialize SpeechRecognition:', err);
+            console.log(PREFIX, 'SpeechRecognition init failed:', err);
             return false;
         }
     }
 
-    function start() {
-        shouldBeListening = true;
-        if (!recognition) {
-            const ok = initRecognition();
-            if (!ok) {
-                simulateDemoSpeech();
-                return;
+    // ── 2. Google Meet Live Caption Observer ────────────────────
+    // Google Meet renders live subtitles into specific DOM containers when enabled
+    function startCaptionObserver() {
+        if (captionObserver) return;
+
+        const captionSelectors = [
+            'div[jscontroller] .iTTPOb',
+            'div[aria-live="polite"]',
+            '.bh44bd',
+            '.VbkSUe',
+            '[data-sender-name]'
+        ];
+
+        captionObserver = new MutationObserver(() => {
+            if (!shouldBeListening) return;
+
+            for (const sel of captionSelectors) {
+                const nodes = document.querySelectorAll(sel);
+                if (nodes.length > 0) {
+                    const latestNode = nodes[nodes.length - 1];
+                    const text = latestNode.textContent?.trim();
+                    if (text && text.length > 2 && text !== lastProcessedText) {
+                        console.log(PREFIX, 'Captured Meet live caption:', text);
+                        processSpeechText(text);
+                        break;
+                    }
+                }
             }
+        });
+
+        try {
+            captionObserver.observe(document.body, {
+                childList: true,
+                subtree: true,
+                characterData: true
+            });
+            console.log(PREFIX, 'Google Meet caption observer active.');
+        } catch (e) {}
+    }
+
+    function stopCaptionObserver() {
+        if (captionObserver) {
+            captionObserver.disconnect();
+            captionObserver = null;
+        }
+    }
+
+    // ── 3. Central Speech Processor ─────────────────────────────
+    function processSpeechText(text) {
+        if (!text) return;
+        lastProcessedText = text;
+        console.log(PREFIX, 'Processing speech text:', text);
+
+        // Update Dialogue Box in overlay
+        if (window.__sbOverlay) {
+            window.__sbOverlay.updateDialogue(text, true);
         }
 
-        if (!isListening) {
+        // Trigger Sign Avatar
+        if (window.__sbAvatar) {
+            window.__sbAvatar.show();
+            window.__sbAvatar.signText(text);
+        }
+
+        // Notify recording & popup
+        document.dispatchEvent(new CustomEvent('sb:speechHeard', {
+            detail: { text, timestamp: Date.now() }
+        }));
+
+        try {
+            chrome.runtime.sendMessage({
+                type: 'SPEECH_HEARD',
+                text
+            }).catch(() => {});
+        } catch (e) {}
+    }
+
+    // ── 4. Public API ───────────────────────────────────────────
+    function start() {
+        shouldBeListening = true;
+        speechBlocked = false;
+
+        // 1. Start Meet caption observer
+        startCaptionObserver();
+
+        // 2. Start Web Speech recognition
+        if (!recognition) {
+            initRecognition();
+        }
+
+        if (recognition && !isListening) {
             try {
                 recognition.start();
             } catch (err) {
-                console.warn(PREFIX, 'Start call caught:', err);
+                // If already active or mic locked
             }
+        }
+
+        if (window.__sbOverlay) {
+            window.__sbOverlay.updateDialogue('Listening for voice from call...', false);
+        }
+        if (window.__sbAvatar) {
+            window.__sbAvatar.show();
         }
     }
 
     function stop() {
         shouldBeListening = false;
         clearTimeout(restartTimer);
+        stopCaptionObserver();
+
         if (recognition && isListening) {
-            try {
-                recognition.stop();
-            } catch (err) {
-                console.warn(PREFIX, 'Stop call caught:', err);
-            }
+            try { recognition.stop(); } catch (err) {}
         }
         isListening = false;
     }
 
-    // Fallback simulation for demonstration if mic permission is blocked in test environment
-    let demoIndex = 0;
-    const DEMO_PHRASES = [
-        "Hello everyone, can you see my sign avatar?",
-        "Welcome to the sign language project presentation",
-        "Thank you for attending this meeting",
-        "Please explain the next slide",
-        "Yes, I understand your question"
-    ];
-
-    function simulateDemoSpeech() {
-        if (!shouldBeListening) return;
-        const phrase = DEMO_PHRASES[demoIndex % DEMO_PHRASES.length];
-        demoIndex++;
-        console.log(PREFIX, '[Demo Mode] Simulating incoming speech:', phrase);
-
-        if (window.__sbOverlay) {
-            window.__sbOverlay.updateDialogue(phrase, true);
-        }
-        if (window.__sbAvatar) {
-            window.__sbAvatar.show();
-            window.__sbAvatar.signText(phrase);
-        }
-
-        if (shouldBeListening) {
-            restartTimer = setTimeout(simulateDemoSpeech, 6000);
-        }
-    }
-
-    // ── Global Interface ────────────────────────
+    // ── Global Hook ─────────────────────────────────────────────
     window.__sbSpeechListener = {
         start,
         stop,
-        isListening: () => isListening,
+        isListening: () => isListening || shouldBeListening,
         triggerPhrase: (phrase) => {
-            if (window.__sbOverlay) window.__sbOverlay.updateDialogue(phrase, true);
-            if (window.__sbAvatar) {
-                window.__sbAvatar.show();
-                window.__sbAvatar.signText(phrase);
-            }
+            console.log(PREFIX, 'Manual test phrase triggered:', phrase);
+            processSpeechText(phrase);
         }
     };
 
-    console.log(PREFIX, 'speechListener.js loaded.');
+    console.log(PREFIX, 'Dual-Source speechListener.js loaded.');
 })();
