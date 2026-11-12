@@ -74,7 +74,7 @@ arokiyanithishj@gmail.com
 
 
 \begin{abstract}
-Real time sign language recognition is needed to support communication during live video calls without depending on future frames. However, recurrent networks update their hidden states at each frame, even when the visual input is unreliable. Tracking errors, blurred movements, and missing landmarks can therefore affect the stored information. To address this issue, this paper introduces RACER X, a causal recurrent network that uses tracking reliability and the agreement between spatial and motion features to control hidden state updates. The proposed method uses Frenet Serret differential invariants, such as curvature ($\kappa$) and torsion ($\tau$), to represent spatial movements that may not be captured by planar projections. An asymmetric cross hand attention block learns the relationship between the dominant hand and the supporting hand. The adaptive update gate ($g_t$) limits the effect of unreliable inputs and preserves the previous hidden state when tracking quality becomes poor. The training process also includes a physics informed kinematic loss to penalize unnatural joint acceleration. Experiments across a unified Indian Sign Language corpus containing 9,168 video sequences and 2,748 vocabulary tokens indicate that RACER X attains 81.5\% accuracy alongside error metrics of 24.8\% WER and 14.2\% CER. It lowers WER by 13.7 percentage points compared with the baseline GRU. When 40\% of landmarks are occluded, RACER X records a WER of 32.3\%, whereas the standard baseline reaches 68.4\%. The system is deployed as a WebRTC browser extension for Google Meet and Zoom. It processes each frame in 24.3 ms, corresponding to approximately 41.2 FPS. The extension delivers synchronized captions and synthesized speech to help non speaking signers communicate during video calls.
+Real time sign language recognition is needed to support communication during live video calls without depending on future frames. However, recurrent networks update their hidden states at each frame, even when the visual input is unreliable. Tracking errors, blurred movements, and missing landmarks can therefore affect the stored information. To address this issue, this paper introduces RACER X, a causal recurrent network that uses tracking reliability and the agreement between spatial and motion features to control hidden state updates. The proposed method uses Frenet Serret differential invariants, such as curvature ($\kappa$) and torsion ($\tau$), to represent spatial movements that may not be captured by planar projections. An asymmetric cross hand attention block learns the relationship between the dominant hand and the supporting hand. The adaptive update gate ($g_t$) limits the effect of unreliable inputs and preserves the previous hidden state when tracking quality becomes poor. The training process also includes a physics informed kinematic loss to penalize unnatural joint acceleration. Tests on a unified Indian Sign Language benchmark with 9,168 video sequences and 2,748 vocabulary tokens show that RACER X achieves 81.5\% accuracy alongside error metrics of 24.8\% WER and 14.2\% CER. It lowers WER by 13.7 percentage points compared with the baseline GRU. When 40\% of landmarks are occluded, RACER X records a WER of 32.3\%, whereas the standard baseline reaches 68.4\%. The system is deployed as a WebRTC browser extension for Google Meet and Zoom. It processes each frame in 24.3 ms, corresponding to approximately 41.2 FPS. The extension delivers synchronized captions and synthesized speech to help non speaking signers communicate during video calls.
 \end{abstract}
 
 
@@ -176,7 +176,7 @@ where $\hat{P}_t$ denotes normalized keypoints, $S_t$ and $M_t$ represent spatia
 \node[gate] (gate_node) at (6.4, -4.7) {\textbf{Dynamic State Gate}\\$g_t = \sigma(W_g x_t + \alpha_R R_t + \alpha_A A_t)$};
 
 % Row 5: Innovation 4 & CTC Decoder
-\node[inno] (pinn) at (2.0, -6.3) {\textbf{Kinematic PINN Loss}\\$\mathcal{L}_{\text{physics}} = \| \Delta \hat{P}_t - V_t \Delta t \|_2^2$};
+\node[inno] (pinn) at (2.0, -6.3) {\textbf{Kinematic Trajectory Loss}\\$\mathcal{L}_{\text{physics}} = \mathbb{E}_t [ \| \Delta \hat{P}_t - V_t \Delta t \|_F^2 ]$};
 \node[box] (bayes_ctc) at (6.4, -6.3) {Bayesian Balanced CTC Decoder\\$\log P_{\text{bal}} = \log P_{\text{CTC}} - \beta \log \mathcal{P}_{\text{prior}}$};
 
 % Row 6: Meeting Output
@@ -256,12 +256,16 @@ producing the normalized matrix $\hat{P}_t \in \mathbb{R}^{K \times 3}$.
 
 \subsection{Frenet Serret Differential Kinematics}
 
-Distinct lexical signs frequently exhibit identical two dimensional silhouettes yet diverge along three dimensional continuous paths. To characterize these geometric spatial trajectories, we track the moving Frenet Serret frame. For the wrist and index keypoints, higher order kinematic motion vectors are obtained through successive temporal differences:
+Different signs can have similar two dimensional shapes but follow different paths in three dimensional space. To describe these movements, we track the Frenet Serret frame over time. For the wrist and index finger keypoints, velocity, acceleration, and jerk are calculated using successive temporal differences:
+
 \begin{equation}
-V_t = \frac{\nabla \hat{P}_t}{\Delta t}, \quad A_t = \frac{\nabla^2 \hat{P}_t}{\Delta t^2}, \quad J_t = \frac{\nabla^3 \hat{P}_t}{\Delta t^3},
+V_t = \frac{\nabla \hat{P}_t}{\Delta t}, \quad
+A_t = \frac{\nabla^2 \hat{P}_t}{\Delta t^2}, \quad
+J_t = \frac{\nabla^3 \hat{P}_t}{\Delta t^3},
 \label{eq:kinematics}
 \end{equation}
-where $\nabla^k \hat{P}_t$ denotes the $k$-th order backward discrete difference operator over normalized joint positions.
+
+where $\nabla^k \hat{P}_t$ represents the $k$th order backward difference of the normalized joint positions.
 
 The unit tangent $T_t$, unit binormal $B_t$, and unit principal normal $N_t$ are defined as:
 \begin{equation}
@@ -355,19 +359,24 @@ H_t = g_t \odot \tilde{H}_t + (1 - g_t) \odot H_{t-1}.
 When tracking is lost ($R_t \to 0$) or posture and motion are inconsistent ($A_t \to -1$), the gate closes ($g_t \to \mathbf{0}$). The recurrent cell preserves its prior state ($H_t \approx H_{t-1}$), ignoring distorted inputs.
 
 \subsection{Physics Informed Kinematic Regularization}
-To suppress nonphysical keypoint fluctuations and detector chatter during gradient optimization, the network penalizes deviations from Newtonian first order trajectory projection:
+
+To reduce unrealistic keypoint changes and detector noise during training, the network penalizes differences between the predicted joint positions and their expected positions based on the estimated velocity:
+
 \begin{equation}
-\mathcal{L}_{\text{physics}} = \frac{1}{T-1} \sum_{t=1}^{T-1} \left\| \hat{P}_{t+1} - (\hat{P}_t + V_t \Delta t) \right\|_F^2,
+\mathcal{L}_{\text{physics}} = \mathbb{E}_t \left[ \left\| \hat{P}_{t+1} - (\hat{P}_t + V_t \Delta t) \right\|_F^2 \right],
 \label{eq:physics_loss_math}
 \end{equation}
-where $\hat{P}_t + V_t \Delta t$ denotes the kinematic forward projection and $\|\cdot\|_F$ represents the Frobenius norm across all skeletal coordinates.
 
-The overall training objective combines CTC alignment with this kinematic penalty:
+where $\mathbb{E}_t[\cdot]$ denotes the empirical expectation averaged over frame steps $t \in \{1, \dots, T-1\}$, and $\hat{P}_t + V_t \Delta t$ represents the forward kinematic projection across all skeletal joints under Frobenius norm $\|\cdot\|_F$.
+
+The training objective combines the CTC loss with the kinematic penalty:
+
 \begin{equation}
 \mathcal{L}_{\text{total}} = \mathcal{L}_{\text{CTC}} + \lambda_{\text{phys}} \mathcal{L}_{\text{physics}},
 \label{eq:total_loss_math}
 \end{equation}
-where $\lambda_{\text{phys}} = 0.05$ helps maintain smooth trajectories while preserving actual movement boundaries.
+
+where $\lambda_{\text{phys}} = 0.05$ controls trajectory smoothness while retaining actual movement boundaries.
 
 \subsection{Bayesian Class Balanced CTC Sequence Decoding}
 

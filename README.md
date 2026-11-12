@@ -202,7 +202,7 @@ When R_t → 0 or A_t → -1, the gate shuts (g_t → 0) and the cell **preserve
 A **physics informed neural network (PINN) loss** penalizes unphysical joint accelerations during training:
 
 ```
-L_physics = (1/(T-1)) Σ || P̂_{t+1} - (P̂_t + V_t · Δt) ||_F²
+L_physics = E_t [ || P̂_{t+1} - (P̂_t + V_t · Δt) ||_F² ]
 
 L_total = L_CTC + λ_phys · L_physics     (λ_phys = 0.05)
 ```
