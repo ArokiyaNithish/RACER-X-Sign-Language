@@ -358,14 +358,14 @@ When tracking is lost ($R_t \to 0$) or posture and motion are inconsistent ($A_t
 
 \subsection{Physics Informed Kinematic Regularization}
 
-To reduce unrealistic keypoint changes and detector noise during training, the network penalizes differences between the predicted joint positions and their expected positions based on the estimated velocity:
+Unconstrained coordinate regression frequently suffers from tracking chatter and sensor dropouts. To enforce physiological plausibility across sequential frames, we impose a kinematic consistency constraint penalizing deviations from local linear momentum:
 
 \begin{equation}
-\mathcal{L}_{\text{physics}} = \mathbb{E}_t \left[ \left\| \hat{P}_{t+1} - (\hat{P}_t + V_t \Delta t) \right\|_F^2 \right],
+\mathcal{L}_{\text{physics}} = \frac{1}{T-1} \sum_{t=1}^{T-1} \left\| \Delta \hat{P}_t - V_t \Delta t \right\|_F^2,
 \label{eq:physics_loss_math}
 \end{equation}
 
-where $\mathbb{E}_t[\cdot]$ denotes the empirical expectation averaged over frame steps $t \in \{1, \dots, T-1\}$, and $\hat{P}_t + V_t \Delta t$ represents the forward kinematic projection across all skeletal joints under Frobenius norm $\|\cdot\|_F$.
+Here $\Delta \hat{P}_t = \hat{P}_{t+1} - \hat{P}_t$ measures the empirical frame to frame displacement across all tracked joints, while $V_t \Delta t$ provides the first order ballistic projection. Evaluating this discrepancy under matrix Frobenius norm $\|\cdot\|_F$ penalizes abrupt unphysical accelerations without impeding natural articulation velocity.
 
 Overall network weights update jointly against sequence alignment errors and mechanical violations:
 
