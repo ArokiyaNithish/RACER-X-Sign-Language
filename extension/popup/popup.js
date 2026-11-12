@@ -340,13 +340,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         chrome.runtime.onMessage.addListener((request) => {
             if (request.type === "SIGN_RECOGNITION") {
                 detText.textContent = request.text || "—";
+                if (speechText) {
+                    speechText.textContent = `Opposite Signer: "${request.text}"`;
+                    if (avatarSignStatus) avatarSignStatus.textContent = `🔊 Voice: "${request.text}"`;
+                }
             }
             if (request.type === "PHRASE_READY") {
                 detPhrase.textContent = request.text;
             }
             if (request.type === "SPEECH_HEARD") {
                 if (speechText) speechText.textContent = `"${request.text}"`;
-                if (avatarSignStatus) avatarSignStatus.textContent = `🤖 Avatar signed: "${request.text}"`;
             }
         });
     } catch (e) { }

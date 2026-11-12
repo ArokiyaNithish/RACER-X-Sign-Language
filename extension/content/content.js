@@ -261,15 +261,18 @@
         console.log(PREFIX, 'Setting communication mode to:', mode);
 
         if (mode === 'sign') {
-            // Sign Mode: deaf user signs -> camera detection on, TTS on, speech listener off
-            window.__sbSpeechListener?.stop();
-            startDetection();
+            // Sign Mode: User is signing -> capture local camera, translate to speech & subtitles
+            if (window.__sbSignDetector) {
+                window.__sbSignDetector.setMode('sign');
+                startDetection();
+            }
             if (window.__sbOverlay) window.__sbOverlay.setMode('sign');
         } else if (mode === 'listen') {
-            // Listen Mode: hearing participant speaks -> speech listener on, avatar on, camera idle
-            stopDetection();
-            enableAvatar();
-            window.__sbSpeechListener?.start();
+            // Listen Mode: Opposite person is signing -> capture remote participant video, translate to voice & text for listener
+            if (window.__sbSignDetector) {
+                window.__sbSignDetector.setMode('listen');
+                startDetection();
+            }
             if (window.__sbOverlay) window.__sbOverlay.setMode('listen');
         }
 

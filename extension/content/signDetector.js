@@ -69,22 +69,55 @@
         ctx = canvasEl.getContext('2d');
     }
 
+    let currentTargetMode = 'sign'; // 'sign' (self camera) or 'listen' (opposite participant video)
+
     // ── Video Capture Acquisition ────────────────
-    // Tries to hook Meet's existing video track first, else requests getUserMedia
-    async function acquireVideoStream() {
-        // 1. Try finding Google Meet's active local video element
-        const meetVideos = Array.from(document.querySelectorAll('video'));
+    // Hooks either local camera (Sign Mode) or opposite person's video (Listen Mode)
+    async function acquireVideoStream(mode = currentTargetMode) {
+        // Search for active video streams in Google Meet
+        const meetVideos = Array.from(document.querySelectorAll('video')).filter(v => {
+            return v.videoWidth > 0 || (v.srcObject && v.srcObject.active);
+        });
+
+        if (mode === 'listen' && meetVideos.length > 1) {
+            // Find remote participant's video (opposite person signing)
+            const remoteVideo = meetVideos.find(v => {
+                const isSelf = v.closest('[data-self-name], [data-participant-id*="self"]') || 
+                               (v.style && v.style.transform && v.style.transform.includes('-1'));
+                return !isSelf;
+            }) || meetVideos[0];
+
+            console.log(PREFIX, 'Listen Mode: Hooked directly into opposite participant video feed!');
+            return remoteVideo;
+        }
+
+        if (mode === 'sign' && meetVideos.length > 1) {
+            // Find local video (self view of user signing)
+            const localVideo = meetVideos.find(v => {
+                return v.closest('[data-self-name], [data-participant-id*="self"]') || 
+                       (v.style && v.style.transform && v.style.transform.includes('-1'));
+            }) || meetVideos[meetVideos.length - 1];
+
+            console.log(PREFIX, 'Sign Mode: Hooked local self video feed!');
+            return localVideo;
+        }
+
+        // Single video present in call
         for (const v of meetVideos) {
             if (v.srcObject && v.srcObject.getVideoTracks && v.srcObject.getVideoTracks().length > 0) {
                 const track = v.srcObject.getVideoTracks()[0];
                 if (track.enabled && track.readyState === 'live') {
-                    console.log(PREFIX, 'Hooked directly into Google Meet active video feed!');
+                    console.log(PREFIX, `Hooked active Google Meet video feed (${mode} mode)!`);
                     return v;
                 }
             }
         }
 
-        // 2. Fallback to requesting local camera
+        if (meetVideos.length > 0) {
+            return meetVideos[0];
+        }
+
+        // Fallback: request local camera
         try {
             const stream = await navigator.mediaDevices.getUserMedia({
                 video: {
@@ -108,6 +141,24 @@
         } catch (err) {
             console.warn(PREFIX, 'Could not acquire webcam stream directly:', err.message);
             return null;
+        }
+    }
+
+    function setTargetMode(newMode) {
+        if (!newMode || newMode === currentTargetMode) return;
+        currentTargetMode = newMode;
+        console.log(PREFIX, 'Switching detection target mode to:', currentTargetMode);
+        if (isRunning) {
+            reacquireVideo();
+        }
+    }
+
+    async function reacquireVideo() {
+        const newVid = await acquireVideoStream(currentTargetMode);
+        if (newVid && newVid !== videoEl) {
+            videoEl = newVid;
+            if (window.__sbOverlay) window.__sbOverlay.setVideoSource(videoEl);
+            console.log(PREFIX, 'Active video source switched to:', currentTargetMode);
         }
     }
 
@@ -222,20 +273,28 @@
             lastSignText = msg.text;
         }
 
-        console.log(PREFIX, `Detected Sign: "${msg.text}" (${Math.round((msg.confidence || 0.9) * 100)}%)`);
+        const isListenMode = (currentTargetMode === 'listen');
+        const displayLabel = isListenMode ? `Opposite Signer: "${msg.text}"` : msg.text;
+
+        console.log(PREFIX, `Detected Sign (${currentTargetMode}): "${displayLabel}" (${Math.round((msg.confidence || 0.9) * 100)}%)`);
 
         // 1. Update UI overlay & Google Meet floating live caption banner
         if (window.__sbOverlay) {
             window.__sbOverlay.updateDetection(msg.text, msg.confidence);
+            window.__sbOverlay.showSubtitle(displayLabel);
             window.__sbOverlay.setProcessing(false);
+            if (isListenMode) {
+                window.__sbOverlay.updateDialogue(`Opposite Signer: "${msg.text}"`, true);
+            }
         }
 
-        // 2. Dispatch event for content script & speech synthesizer
+        // 2. Dispatch event for content script & speech synthesizer (speaks text aloud)
         document.dispatchEvent(new CustomEvent('sb:signDetected', {
             detail: {
                 text: msg.text,
                 confidence: msg.confidence,
-                rawSign: msg.raw_sign
+                rawSign: msg.raw_sign,
+                mode: currentTargetMode
             }
         }));
 
@@ -243,7 +302,8 @@
         chrome.runtime.sendMessage({
             type: "SIGN_RECOGNITION",
             text: msg.text,
-            confidence: msg.confidence
+            confidence: msg.confidence,
+            mode: currentTargetMode
         }).catch(() => {});
     }
 
@@ -251,6 +311,7 @@
     window.__sbSignDetector = {
         start: startCamera,
         stop: stopCamera,
+        setMode: setTargetMode,
         isRunning: () => isRunning,
         onResult: handleRecognitionResult
     };

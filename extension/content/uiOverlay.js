@@ -614,23 +614,16 @@
           <div id="sb-confidence-bar-wrap"><div id="sb-confidence-bar"></div></div>
         </div>
 
-        <!-- 2. Listen Mode: Speech from Meeting -> Avatar Signs Back -->
+        <!-- 2. Listen Mode: Opposite Person Live Sign Language -> Real-Time Text & Speech -->
         <div id="sb-dialogue-box" class="sb-dialogue-box">
           <div class="sb-dialogue-header">
             <div class="sb-dialogue-chip">
               <span class="sb-pulse-dot"></span>
-              <span>Hearing Participant Speaking</span>
+              <span>Opposite Signer (Live Translation)</span>
             </div>
-            <span class="sb-avatar-status-badge">Avatar Active</span>
+            <span class="sb-avatar-status-badge">🔊 Voice Speech Active</span>
           </div>
-          <div id="sb-dialogue-text">"Listening for voice from call..."</div>
-          <div class="sb-dialogue-test-chips">
-            <span class="sb-test-chip" data-speak="Hello welcome">👋 Hello</span>
-            <span class="sb-test-chip" data-speak="Thank you">🙏 Thanks</span>
-            <span class="sb-test-chip" data-speak="How are you">❓ How Are You</span>
-            <span class="sb-test-chip" data-speak="Yes agree">✅ Yes</span>
-            <span class="sb-test-chip" data-speak="Good project">👍 Good</span>
-          </div>
+          <div id="sb-dialogue-text">"Waiting for opposite person to sign..."</div>
         </div>
 
         <div class="sb-quick-btns">
@@ -783,17 +776,6 @@
         window.__sbSetMode('listen');
       };
     }
-
-    // Quick Test Chips inside Dialogue Box (instant avatar test)
-    document.querySelectorAll('.sb-test-chip').forEach(chip => {
-      chip.onclick = (e) => {
-        e.stopPropagation();
-        const phrase = chip.getAttribute('data-speak');
-        if (phrase && window.__sbSpeechListener) {
-          window.__sbSpeechListener.triggerPhrase(phrase);
-        }
-      };
-    });
 
     // Quick Action Buttons
     const btnAvatar = document.getElementById('sb-toggle-avatar');
