@@ -256,27 +256,25 @@ producing the normalized matrix $\hat{P}_t \in \mathbb{R}^{K \times 3}$.
 
 \subsection{Frenet Serret Differential Kinematics}
 
-Different signs can have similar two dimensional shapes but follow different paths in three dimensional space. To describe these movements, we track the Frenet Serret frame over time. For the wrist and index finger keypoints, velocity, acceleration, and jerk are calculated using successive temporal differences:
-
+Planar camera projections discard depth. Consequently, two gestures with disparate three dimensional spatial trajectories often map to nearly identical image coordinates when hands sweep toward or away from the lens. To isolate out of plane movement, we construct moving Frenet Serret frames along the dominant wrist and index trajectories. At sampling step $\Delta t$, backward differences over normalized joint coordinates $\hat{P}_t$ yield instantaneous velocity $V_t$, acceleration $A_t$, and jerk $J_t$:
 \begin{equation}
-V_t = \frac{\nabla \hat{P}_t}{\Delta t}, \quad
-A_t = \frac{\nabla^2 \hat{P}_t}{\Delta t^2}, \quad
-J_t = \frac{\nabla^3 \hat{P}_t}{\Delta t^3},
+V_t = \frac{\Delta \hat{P}_t}{\Delta t}, \quad
+A_t = \frac{\Delta V_t}{\Delta t}, \quad
+J_t = \frac{\Delta A_t}{\Delta t},
 \label{eq:kinematics}
 \end{equation}
+where $\Delta X_t = X_t - X_{t-1}$ is the temporal step difference operator.
 
-where $\nabla^k \hat{P}_t$ represents the $k$th order backward difference of the normalized joint positions.
-
-The unit tangent $T_t$, unit binormal $B_t$, and unit principal normal $N_t$ are defined as:
+From these kinematic vectors, we construct the orthonormal Frenet trihedron consisting of tangent $T_t$, binormal $B_t$, and principal normal $N_t$:
 \begin{equation}
 \begin{aligned}
-T_t &= \frac{V_t}{|V_t|_2 + \epsilon}, \quad B_t = \frac{V_t \times A_t}{|V_t \times A_t|_2 + \epsilon}, \
+T_t &= \frac{V_t}{|V_t|_2 + \epsilon}, \quad B_t = \frac{V_t \times A_t}{|V_t \times A_t|_2 + \epsilon}, \\
 N_t &= B_t \times T_t.
 \end{aligned}
 \label{eq:frenet_frame}
 \end{equation}
 
-These vectors are used to calculate the instantaneous three dimensional curvature $\kappa_t$, which describes how the path bends, and torsion $\tau_t$, which describes its twist out of the plane:
+The trajectory curvature $\kappa_t$ captures path deflection, while torsion $\tau_t$ measures out of plane twisting:
 \begin{equation}
 \kappa_t = \frac{|V_t \times A_t|_2}{|V_t|_2^3 + \epsilon},
 \label{eq:curvature_math}
