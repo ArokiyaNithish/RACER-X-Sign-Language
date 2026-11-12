@@ -172,7 +172,7 @@ where $\hat{P}_t$ denotes normalized keypoints, $S_t$ and $M_t$ represent spatia
 \node[inno] (rel_conf) at (6.4, -3.1) {\textbf{Gating Metric Inputs}\\Reliability $R_t$ \& Agreement $A_t$};
 
 % Row 4: Causal State Update & Dynamic Gate
-\node[box] (state_update) at (2.0, -4.7) {Causal State Evolution\\$H_t = g_t \odot \tilde{H}_t + (1 - g_t) \odot H_{t-1}$};
+\node[box] (state_update) at (2.0, -4.7) {Causal State Evolution\\Adaptive Memory Update};
 \node[gate] (gate_node) at (6.4, -4.7) {\textbf{Dynamic State Gate}\\$g_t = \sigma(W_g x_t + \alpha_R R_t + \alpha_A A_t)$};
 
 % Row 5: Innovation 4 & CTC Decoder
