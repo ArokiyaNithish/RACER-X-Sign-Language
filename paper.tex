@@ -367,14 +367,14 @@ To reduce unrealistic keypoint changes and detector noise during training, the n
 
 where $\mathbb{E}_t[\cdot]$ denotes the empirical expectation averaged over frame steps $t \in \{1, \dots, T-1\}$, and $\hat{P}_t + V_t \Delta t$ represents the forward kinematic projection across all skeletal joints under Frobenius norm $\|\cdot\|_F$.
 
-The training objective combines the CTC loss with the kinematic penalty:
+Overall network weights update jointly against sequence alignment errors and mechanical violations:
 
 \begin{equation}
-\mathcal{L}_{\text{total}} = \mathcal{L}_{\text{CTC}} + \lambda_{\text{phys}} \mathcal{L}_{\text{physics}},
+\mathcal{L}_{\text{total}} = \mathcal{L}_{\text{CTC}} + \lambda_{\text{phys}} \, \mathcal{L}_{\text{physics}},
 \label{eq:total_loss_math}
 \end{equation}
 
-where $\lambda_{\text{phys}} = 0.05$ controls trajectory smoothness while retaining actual movement boundaries.
+assigning scalar weight $\lambda_{\text{phys}} = 0.05$. This empirical factor bounds high frequency landmark jitter during fast transitions without flattening purposeful deceleration at sign boundaries.
 
 \subsection{Bayesian Class Balanced CTC Sequence Decoding}
 
