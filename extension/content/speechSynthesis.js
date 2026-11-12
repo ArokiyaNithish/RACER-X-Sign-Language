@@ -125,7 +125,7 @@
                 return;
             }
 
-            const formattedText = `[SignBridge] ${text}`;
+            const formattedText = `[Sign Language]: ${text}`;
 
             // Handle both input and contenteditable elements
             if (chatInput.tagName === 'TEXTAREA' || chatInput.tagName === 'INPUT') {

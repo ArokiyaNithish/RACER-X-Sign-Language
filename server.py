@@ -44,6 +44,23 @@ app.add_middleware(
 )
 
 # -------------------------------------------------------------
+# Active Client Pool for Multi-Participant Broadcast (1-to-Many / Many-to-1)
+# -------------------------------------------------------------
+connected_clients: set[WebSocket] = set()
+
+async def broadcast_to_clients(payload_dict: dict):
+    """Broadcast recognition and phrase events to all connected clients in the meeting."""
+    text_data = json.dumps(payload_dict)
+    dead_clients = []
+    for client in list(connected_clients):
+        try:
+            await client.send_text(text_data)
+        except Exception:
+            dead_clients.append(client)
+    for dc in dead_clients:
+        connected_clients.discard(dc)
+
+# -------------------------------------------------------------
 # Model & Vocabulary Initialization
 # -------------------------------------------------------------
 vocab = {}
@@ -231,7 +248,8 @@ def health():
 @app.websocket("/ws/sign-recognition")
 async def websocket_sign_endpoint(websocket: WebSocket, token: str = Query(None)):
     await websocket.accept()
-    print(f"[+] Chrome Extension connected to /ws/sign-recognition (token={token})")
+    connected_clients.add(websocket)
+    print(f"[+] Chrome Extension connected to /ws/sign-recognition (token={token}) [Total active: {len(connected_clients)}]")
 
     frame_buffer = []
     last_emit_time = 0
@@ -341,27 +359,33 @@ async def websocket_sign_endpoint(websocket: WebSocket, token: str = Query(None)
                     if decoded_text and decoded_text.strip():
                         last_emit_time = now
                         last_prediction = decoded_text
-                        await websocket.send_text(json.dumps({
+                        rec_payload = {
                             "type": "recognition",
                             "text": decoded_text.title(),
                             "raw_sign": decoded_text,
                             "confidence": float(np.mean(R_f)),
                             "timestamp": int(now * 1000)
-                        }))
+                        }
+                        # Broadcast to all connected clients (1 signer -> N listeners)
+                        await broadcast_to_clients(rec_payload)
 
                 # When hands rest, emit complete phrase for spoken TTS
                 if silence_counter == 15 and last_prediction:
-                    await websocket.send_text(json.dumps({
+                    phrase_payload = {
                         "type": "phrase_ready",
                         "text": last_prediction.title(),
                         "timestamp": int(now * 1000)
-                    }))
+                    }
+                    await broadcast_to_clients(phrase_payload)
                     last_prediction = ""
 
     except WebSocketDisconnect:
         print("[-] Chrome Extension disconnected from /ws/sign-recognition")
     except Exception as e:
         print(f"[!] WebSocket loop error: {e}")
+    finally:
+        connected_clients.discard(websocket)
+        print(f"[-] Client removed. Remaining active clients: {len(connected_clients)}")
 
 # -------------------------------------------------------------
 # Main Startup

@@ -337,39 +337,6 @@
         border: 1px solid rgba(0, 255, 160, 0.3);
       }
 
-      .sb-dialogue-test-chips {
-        display: flex;
-        gap: 5px;
-        flex-wrap: wrap;
-        margin-top: 5px;
-        padding-top: 5px;
-        border-top: 1px solid rgba(168, 85, 247, 0.2);
-      }
-
-      .sb-test-chip {
-        font-size: 9.5px;
-        font-weight: 600;
-        background: rgba(168, 85, 247, 0.18);
-        border: 1px solid rgba(168, 85, 247, 0.35);
-        color: #e9d5ff;
-        padding: 3px 8px;
-        border-radius: 6px;
-        cursor: pointer;
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        user-select: none;
-      }
-
-      .sb-test-chip:hover {
-        background: rgba(168, 85, 247, 0.35);
-        color: #fff;
-        border-color: #c084fc;
-        transform: translateY(-1px);
-      }
-
-      .sb-test-chip:active {
-        transform: translateY(0);
-      }
-
       /* Quick Action Buttons */
       .sb-quick-btns {
         display: grid;
@@ -594,16 +561,16 @@
       <div id="sb-overlay-body">
         <!-- Dual Mode Switcher: Sign vs Listen -->
         <div class="sb-mode-switch-wrap">
-          <button class="sb-mode-tab active-sign" id="sb-mode-sign">
-            <span>🤟</span> Sign Mode
+          <button class="sb-mode-tab active-sign" id="sb-mode-sign" title="Turn camera ON to translate your signs into speech & chat">
+            <span>🤟</span> Sign (Camera ON)
           </button>
-          <button class="sb-mode-tab" id="sb-mode-listen">
-            <span>👂</span> Listen Mode
+          <button class="sb-mode-tab" id="sb-mode-listen" title="Turn camera OFF to listen to sign language speech & subtitles">
+            <span>👂</span> Listen (Camera OFF)
           </button>
         </div>
 
         <div class="sb-status-row">
-          <span id="sb-status-text">🟢 Sign Mode Active</span>
+          <span id="sb-status-text">🟢 Sign Mode (Camera ON)</span>
           <span id="sb-fps-badge" style="font-size:10px; color:#5f6368;">Ready</span>
         </div>
 
@@ -619,11 +586,11 @@
           <div class="sb-dialogue-header">
             <div class="sb-dialogue-chip">
               <span class="sb-pulse-dot"></span>
-              <span>Opposite Signer (Live Translation)</span>
+              <span>Sign Language Live Translation</span>
             </div>
-            <span class="sb-avatar-status-badge">🔊 Voice Speech Active</span>
+            <span class="sb-avatar-status-badge">🔊 Live Voice & Text</span>
           </div>
-          <div id="sb-dialogue-text">"Waiting for opposite person to sign..."</div>
+          <div id="sb-dialogue-text">"Waiting for sign language translation from meeting..."</div>
         </div>
 
         <div class="sb-quick-btns">
@@ -1177,13 +1144,18 @@
         btnListen?.classList.remove('active-listen');
         if (detectionBox) detectionBox.style.display = 'block';
         if (dialogueBox) dialogueBox.style.display = 'none';
-        if (statusText) statusText.innerHTML = '🟢 Sign Mode Active';
+        if (statusText) statusText.innerHTML = '🟢 Sign Mode (Camera ON)';
+        if (mediapipeHud && showHud) mediapipeHud.style.display = 'block';
+        if (meetVideoCanvas && showSkeleton) meetVideoCanvas.style.display = 'block';
       } else {
         btnSign?.classList.remove('active-sign');
         btnListen?.classList.add('active-listen');
         if (detectionBox) detectionBox.style.display = 'none';
         if (dialogueBox) dialogueBox.style.display = 'flex';
-        if (statusText) statusText.innerHTML = '🟣 Listen Mode Active';
+        if (statusText) statusText.innerHTML = '🟣 Listen Mode (Camera OFF)';
+        // Strictly hide gesture HUD and skeleton overlay for Listen Mode
+        if (mediapipeHud) mediapipeHud.style.display = 'none';
+        if (meetVideoCanvas) meetVideoCanvas.style.display = 'none';
       }
       console.log(PREFIX, 'Overlay mode set to:', mode);
     },

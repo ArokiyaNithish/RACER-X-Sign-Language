@@ -72,26 +72,20 @@
     let currentTargetMode = 'sign'; // 'sign' (self camera) or 'listen' (opposite participant video)
 
     // ── Video Capture Acquisition ────────────────
-    // Hooks either local camera (Sign Mode) or opposite person's video (Listen Mode)
+    // Hooks local camera (Sign Mode only)
     async function acquireVideoStream(mode = currentTargetMode) {
+        // If Listen Mode, strictly DO NOT acquire any camera
+        if (mode === 'listen') {
+            console.log(PREFIX, 'Listen Mode active: Camera is disabled.');
+            return null;
+        }
+
         // Search for active video streams in Google Meet
         const meetVideos = Array.from(document.querySelectorAll('video')).filter(v => {
             return v.videoWidth > 0 || (v.srcObject && v.srcObject.active);
         });
 
-        if (mode === 'listen' && meetVideos.length > 1) {
-            // Find remote participant's video (opposite person signing)
-            const remoteVideo = meetVideos.find(v => {
-                const isSelf = v.closest('[data-self-name], [data-participant-id*="self"]') || 
-                               (v.style && v.style.transform && v.style.transform.includes('-1'));
-                return !isSelf;
-            }) || meetVideos[0];
-
-            console.log(PREFIX, 'Listen Mode: Hooked directly into opposite participant video feed!');
-            return remoteVideo;
-        }
-
-        if (mode === 'sign' && meetVideos.length > 1) {
+        if (meetVideos.length > 1) {
             // Find local video (self view of user signing)
             const localVideo = meetVideos.find(v => {
                 return v.closest('[data-self-name], [data-participant-id*="self"]') || 
@@ -107,7 +101,7 @@
             if (v.srcObject && v.srcObject.getVideoTracks && v.srcObject.getVideoTracks().length > 0) {
                 const track = v.srcObject.getVideoTracks()[0];
                 if (track.enabled && track.readyState === 'live') {
-                    console.log(PREFIX, `Hooked active Google Meet video feed (${mode} mode)!`);
+                    console.log(PREFIX, `Hooked active Google Meet video feed!`);
                     return v;
                 }
             }
@@ -136,7 +130,7 @@
             v.style.display = 'none';
             document.body.appendChild(v);
             await v.play();
-            console.log(PREFIX, 'Acquired independent camera stream.');
+            console.log(PREFIX, 'Acquired independent camera stream for Sign Mode.');
             return v;
         } catch (err) {
             console.warn(PREFIX, 'Could not acquire webcam stream directly:', err.message);
@@ -145,30 +139,37 @@
     }
 
     function setTargetMode(newMode) {
-        if (!newMode || newMode === currentTargetMode) return;
+        if (!newMode) return;
         currentTargetMode = newMode;
-        console.log(PREFIX, 'Switching detection target mode to:', currentTargetMode);
-        if (isRunning) {
-            reacquireVideo();
+        console.log(PREFIX, 'Detection target mode set to:', currentTargetMode);
+        if (currentTargetMode === 'listen') {
+            stopCamera();
+        } else if (currentTargetMode === 'sign' && !isRunning) {
+            startCamera();
         }
     }
 
     async function reacquireVideo() {
+        if (currentTargetMode === 'listen') return;
         const newVid = await acquireVideoStream(currentTargetMode);
         if (newVid && newVid !== videoEl) {
             videoEl = newVid;
             if (window.__sbOverlay) window.__sbOverlay.setVideoSource(videoEl);
-            console.log(PREFIX, 'Active video source switched to:', currentTargetMode);
+            console.log(PREFIX, 'Active video source updated.');
         }
     }
 
     // ── Start / Stop Detection ───────────────────
     async function startCamera() {
+        if (currentTargetMode === 'listen') {
+            console.log(PREFIX, 'In Listen Mode — camera remains OFF.');
+            return;
+        }
         if (isRunning) return;
-        console.log(PREFIX, 'Starting sign language detection...');
+        console.log(PREFIX, 'Starting sign language gesture detection...');
         isRunning = true;
 
-        videoEl = await acquireVideoStream();
+        videoEl = await acquireVideoStream('sign');
         if (videoEl && window.__sbOverlay) {
             window.__sbOverlay.setVideoSource(videoEl);
         }
@@ -177,28 +178,36 @@
         startRecognitionPipeline();
 
         if (window.__sbOverlay) {
-            window.__sbOverlay.setStatus(true, '🟢 Sign Translation Active');
+            window.__sbOverlay.setStatus(true, '🟢 Sign Mode (Camera ON)');
         }
     }
 
     function stopCamera() {
-        if (!isRunning) return;
         isRunning = false;
 
         clearInterval(captureInterval);
         clearInterval(fallbackInterval);
 
-        if (videoEl && videoEl.srcObject && !document.contains(videoEl)) {
-            const stream = videoEl.srcObject;
-            if (stream.getTracks) stream.getTracks().forEach(t => t.stop());
-            videoEl.remove();
+        if (videoEl) {
+            if (videoEl.srcObject) {
+                const stream = videoEl.srcObject;
+                if (stream && stream.getTracks) {
+                    stream.getTracks().forEach(t => {
+                        try { t.stop(); } catch (e) {}
+                    });
+                }
+                videoEl.srcObject = null;
+            }
+            if (videoEl.parentNode) {
+                try { videoEl.parentNode.removeChild(videoEl); } catch (e) {}
+            }
+            videoEl = null;
         }
-        videoEl = null;
 
         if (window.__sbOverlay) {
-            window.__sbOverlay.setStatus(false, '🔴 Sign Translation Off');
+            window.__sbOverlay.setStatus(false, '🟣 Listen Mode (Camera OFF)');
         }
-        console.log(PREFIX, 'Sign language detection stopped.');
+        console.log(PREFIX, 'Sign language detection & camera completely stopped.');
     }
 
     // ── Frame Capture & WebSocket Sender ─────────
@@ -311,6 +320,7 @@
     window.__sbSignDetector = {
         start: startCamera,
         stop: stopCamera,
+        releaseCamera: stopCamera,
         setMode: setTargetMode,
         isRunning: () => isRunning,
         onResult: handleRecognitionResult

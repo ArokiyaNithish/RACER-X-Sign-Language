@@ -43,6 +43,9 @@
         // Detect meeting join/leave
         observeMeeting();
 
+        // Listen for Google Meet in-call chat translations (Multi-User 1-to-many / many-to-1)
+        setupMeetChatObserver();
+
         // Override quick-toggle callbacks from uiOverlay
         window.__sbToggleDetect = () => toggleFeature('detect');
         window.__sbToggleAvatar = () => toggleFeature('avatar');
@@ -254,6 +257,47 @@
         document.dispatchEvent(new CustomEvent('sb:phraseReady', { detail: phrase }));
     }
 
+    // ── Google Meet In-Call Chat Observer (Multi-Participant Broadcast) ──
+    function setupMeetChatObserver() {
+        const observer = new MutationObserver(() => {
+            const chatElements = document.querySelectorAll('[data-message-text="true"], [data-sender-name], [jsname="YpGjbe"]');
+            chatElements.forEach(el => {
+                if (el.dataset.sbHandled) return;
+                el.dataset.sbHandled = 'true';
+
+                const content = el.innerText || el.textContent || '';
+                if (content.includes('[Sign Language]:') || content.includes('[SignBridge]:')) {
+                    const textOnly = content.replace(/\[Sign(Language|Bridge)\]:\s*/i, '').trim();
+                    if (textOnly) {
+                        console.log(PREFIX, 'Received sign translation from Meet chat:', textOnly);
+                        onRemoteSignReceived(textOnly);
+                    }
+                }
+            });
+        });
+
+        observer.observe(document.body, { childList: true, subtree: true });
+    }
+
+    function onRemoteSignReceived(phrase) {
+        if (!phrase) return;
+        // If Listener (or anyone in call), update live dialogue card & subtitles
+        if (window.__sbOverlay) {
+            window.__sbOverlay.updateDialogue(phrase, true);
+            window.__sbOverlay.showSubtitle(phrase);
+        }
+
+        // In Listen Mode, speak aloud for the hearing listener
+        if (state.mode === 'listen' && state.ttsOn && window.__sbSpeech) {
+            window.__sbSpeech.handle(phrase);
+        }
+
+        // Animate avatar character explaining the translation
+        if (state.avatarOn && window.__sbAvatar) {
+            window.__sbAvatar.speak(phrase);
+        }
+    }
+
     // ── Bidirectional Mode Handler (Sign vs Listen) ──
     function setCommunicationMode(mode) {
         if (!mode) return;
@@ -261,18 +305,19 @@
         console.log(PREFIX, 'Setting communication mode to:', mode);
 
         if (mode === 'sign') {
-            // Sign Mode: User is signing -> capture local camera, translate to speech & subtitles
+            // Sign Mode: User is signing -> turn camera ON, detect gestures, broadcast speech & subtitles to meeting
             if (window.__sbSignDetector) {
                 window.__sbSignDetector.setMode('sign');
                 startDetection();
             }
             if (window.__sbOverlay) window.__sbOverlay.setMode('sign');
         } else if (mode === 'listen') {
-            // Listen Mode: Opposite person is signing -> capture remote participant video, translate to voice & text for listener
+            // Listen Mode: User is a hearing listener -> strictly turn camera OFF, receive live translations
             if (window.__sbSignDetector) {
                 window.__sbSignDetector.setMode('listen');
-                startDetection();
+                window.__sbSignDetector.releaseCamera();
             }
+            stopDetection();
             if (window.__sbOverlay) window.__sbOverlay.setMode('listen');
         }
 
@@ -291,7 +336,7 @@
                 break;
 
             case 'START_SIGN_DETECTION':
-                startDetection();
+                if (state.mode === 'sign') startDetection();
                 break;
 
             case 'STOP_SIGN_DETECTION':
@@ -307,8 +352,10 @@
             case 'SETTINGS_UPDATE':
                 if (msg.settings) {
                     state.signVoice = msg.settings.signVoice ?? state.signVoice;
-                    if (state.signVoice) startDetection();
-                    else stopDetection();
+                    if (state.mode === 'sign') {
+                        if (state.signVoice) startDetection();
+                        else stopDetection();
+                    }
                     applySettings();
                 }
                 break;
@@ -320,23 +367,37 @@
                 break;
 
             case 'WS_STATUS':
-                if (window.__sbOverlay && state.detecting) {
-                    window.__sbOverlay.setStatus(true, msg.status === 'connected' ? '🟢 RACER-X AI Online' : '🟢 Sign Translation Active');
+                if (window.__sbOverlay) {
+                    if (state.mode === 'sign') {
+                        window.__sbOverlay.setStatus(true, msg.status === 'connected' ? '🟢 RACER-X AI Online (Camera ON)' : '🟢 Sign Mode (Camera ON)');
+                    } else {
+                        window.__sbOverlay.setStatus(false, '🟣 Listen Mode (Camera OFF)');
+                    }
                 }
                 break;
 
             case 'LANDMARKS_DATA':
-                if (window.__sbOverlay && window.__sbOverlay.updateLandmarks) {
+                if (state.mode === 'sign' && window.__sbOverlay && window.__sbOverlay.updateLandmarks) {
                     window.__sbOverlay.updateLandmarks(msg);
                 }
                 break;
 
             case 'SIGN_RECOGNITION':
-                if (window.__sbOverlay) {
-                    window.__sbOverlay.updateDetection(msg.text, msg.confidence);
-                    window.__sbOverlay.showSubtitle(msg.text);
+                if (state.mode === 'listen') {
+                    onRemoteSignReceived(msg.text);
+                } else {
+                    if (window.__sbOverlay) {
+                        window.__sbOverlay.updateDetection(msg.text, msg.confidence);
+                        window.__sbOverlay.showSubtitle(msg.text);
+                    }
+                    deliverPhrase(msg.text);
                 }
-                deliverPhrase(msg.text);
+                break;
+
+            case 'PHRASE_READY':
+                if (state.mode === 'listen') {
+                    onRemoteSignReceived(msg.text);
+                }
                 break;
 
             default:
