@@ -94,22 +94,30 @@
 
     async function getTabAudioStream() {
         return new Promise((resolve) => {
+            if (!chrome?.runtime?.id) {
+                resolve(null);
+                return;
+            }
             // Request tab capture via background script
-            chrome.runtime.sendMessage({ type: 'REQUEST_TAB_CAPTURE' }, (resp) => {
-                if (chrome.runtime.lastError || !resp || !resp.streamId) {
-                    resolve(null);
-                    return;
-                }
-                navigator.mediaDevices.getUserMedia({
-                    audio: { mandatory: { chromeMediaSource: 'tab', chromeMediaSourceId: resp.streamId } },
-                    video: false
-                })
-                    .then(resolve)
-                    .catch((err) => {
-                        console.warn(PREFIX, 'Tab audio stream error:', err.message);
+            try {
+                chrome.runtime.sendMessage({ type: 'REQUEST_TAB_CAPTURE' }, (resp) => {
+                    if (chrome.runtime.lastError || !resp || !resp.streamId) {
                         resolve(null);
-                    });
-            });
+                        return;
+                    }
+                    navigator.mediaDevices.getUserMedia({
+                        audio: { mandatory: { chromeMediaSource: 'tab', chromeMediaSourceId: resp.streamId } },
+                        video: false
+                    })
+                        .then(resolve)
+                        .catch((err) => {
+                            console.warn(PREFIX, 'Tab audio stream error:', err.message);
+                            resolve(null);
+                        });
+                });
+            } catch (e) {
+                resolve(null);
+            }
         });
     }
 
@@ -175,11 +183,16 @@
             document.dispatchEvent(new CustomEvent('sb:meetingEnded', {
                 detail: { meetingId, summary: result }
             }));
-            chrome.runtime.sendMessage({
-                type: 'MEETING_ENDED',
-                meeting_id: meetingId,
-                summary: result
-            }).catch(() => { });
+            if (chrome?.runtime?.id) {
+                try {
+                    const p = chrome.runtime.sendMessage({
+                        type: 'MEETING_ENDED',
+                        meeting_id: meetingId,
+                        summary: result
+                    });
+                    if (p && typeof p.catch === 'function') p.catch(() => {});
+                } catch (e) {}
+            }
 
         } catch (err) {
             console.error(PREFIX, 'Summary request failed:', err.message);

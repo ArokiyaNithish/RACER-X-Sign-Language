@@ -144,7 +144,12 @@
             }
         });
 
-        chrome.runtime.sendMessage({ type: 'MEETING_STARTED' }).catch(() => {});
+        if (chrome?.runtime?.id) {
+            try {
+                const p = chrome.runtime.sendMessage({ type: 'MEETING_STARTED' });
+                if (p && typeof p.catch === 'function') p.catch(() => {});
+            } catch (e) {}
+        }
     }
 
     function onMeetingLeft() {

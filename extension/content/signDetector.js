@@ -210,6 +210,26 @@
         console.log(PREFIX, 'Sign language detection & camera completely stopped.');
     }
 
+    // ── Safe Extension Messaging ─────────────────
+    function safeSendMessage(payload, cb) {
+        if (!chrome?.runtime?.id) {
+            clearInterval(captureInterval);
+            clearInterval(fallbackInterval);
+            return;
+        }
+        try {
+            const p = chrome.runtime.sendMessage(payload, (resp) => {
+                if (chrome.runtime?.lastError) return;
+                if (cb) cb(resp);
+            });
+            if (p && typeof p.catch === 'function') {
+                p.catch(() => {});
+            }
+        } catch (e) {
+            // Extension context was invalidated upon reload; cleanly ignored
+        }
+    }
+
     // ── Frame Capture & WebSocket Sender ─────────
     function startCapture() {
         captureInterval = setInterval(() => {
@@ -222,7 +242,7 @@
                     const base64 = canvasEl.toDataURL('image/jpeg', JPEG_QUALITY).split(',')[1];
                     
                     // Send to background service worker -> WebSocket
-                    chrome.runtime.sendMessage({
+                    safeSendMessage({
                         type: 'SEND_FRAME',
                         data: base64,
                         userId: userId,
@@ -308,12 +328,12 @@
         }));
 
         // 3. Inform extension popup if open
-        chrome.runtime.sendMessage({
+        safeSendMessage({
             type: "SIGN_RECOGNITION",
             text: msg.text,
             confidence: msg.confidence,
             mode: currentTargetMode
-        }).catch(() => {});
+        });
     }
 
     // ── Public API ───────────────────────────────
