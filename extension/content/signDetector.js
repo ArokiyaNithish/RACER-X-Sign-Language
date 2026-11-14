@@ -48,15 +48,27 @@
 
     async function loadAuth() {
         return new Promise((resolve) => {
-            chrome.storage.local.get(['sb_token', 'sb_user', 'currentUser'], (data) => {
-                if (data.sb_token) {
-                    authToken = data.sb_token;
-                } else if (data.currentUser && data.currentUser.token) {
-                    authToken = data.currentUser.token;
-                }
-                userId = data.sb_user ? (data.sb_user.id || data.sb_user.name) : 'signer';
+            if (!chrome?.runtime?.id) {
                 resolve();
-            });
+                return;
+            }
+            try {
+                chrome.storage.local.get(['sb_token', 'sb_user', 'currentUser'], (data) => {
+                    if (chrome.runtime?.lastError || !data) {
+                        resolve();
+                        return;
+                    }
+                    if (data.sb_token) {
+                        authToken = data.sb_token;
+                    } else if (data.currentUser && data.currentUser.token) {
+                        authToken = data.currentUser.token;
+                    }
+                    userId = data.sb_user ? (data.sb_user.id || data.sb_user.name) : 'signer';
+                    resolve();
+                });
+            } catch (e) {
+                resolve();
+            }
         });
     }
 
@@ -291,6 +303,13 @@
 
     // ── Recognition Result Handler ────────────────
     function handleRecognitionResult(msg) {
+        if (!chrome?.runtime?.id) {
+            // Extension context was invalidated (e.g. extension was reloaded)
+            clearInterval(captureInterval);
+            clearInterval(fallbackInterval);
+            isRunning = false;
+            return;
+        }
         if (!msg || !msg.text) return;
 
         // Debounce: ignore rapid repeats of identical phrase
