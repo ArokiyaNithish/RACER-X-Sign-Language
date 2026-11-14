@@ -2,7 +2,9 @@
 \IEEEoverridecommandlockouts
 
 \usepackage{cite}
-\usepackage{comment}
+\usepackage[normalem]{ulem}
+\usepackage{xurl}
+\usepackage[hidelinks]{hyperref}
 \usepackage{amsmath,amssymb,amsfonts}
 \usepackage{times}
 \usepackage{graphicx}
@@ -12,7 +14,7 @@
 \usepackage{algorithm}
 \usepackage{algorithmicx}
 \usepackage{algpseudocode}
-
+\usepackage{comment}
 \usepackage{tikz}
 \usetikzlibrary{positioning,arrows.meta,shapes.geometric,fit,backgrounds}
 
@@ -569,20 +571,44 @@ We tested the models on signers who were not included in training. Table~\ref{ta
 
 \begin{figure}[H]
 \centering
-\IfFileExists{google_meet_deployment.png}{%
-    \includegraphics[width=0.98\columnwidth,height=3.4cm,keepaspectratio]{google_meet_deployment.png}%
-}{%
-    \IfFileExists{figures/google_meet_deployment.png}{%
-        \includegraphics[width=0.98\columnwidth,height=3.4cm,keepaspectratio]{figures/google_meet_deployment.png}%
+\begin{minipage}{\columnwidth}
+    \centering
+    \IfFileExists{figures/realtime_signer_meet.png}{%
+        \includegraphics[width=0.98\columnwidth,height=2.85cm,keepaspectratio]{figures/realtime_signer_meet.png}%
     }{%
-        \IfFileExists{1.png}{%
-            \includegraphics[width=0.98\columnwidth,height=3.4cm,keepaspectratio]{1.png}%
+        \IfFileExists{realtime_signer_meet.png}{%
+            \includegraphics[width=0.98\columnwidth,height=2.85cm,keepaspectratio]{realtime_signer_meet.png}%
         }{%
-            \fbox{\parbox[c][2.8cm][c]{0.98\columnwidth}{\centering\textbf{[Figure 3: Google Meet Deployment]}\\\vspace{1.5mm}\textit{Please upload `google\_meet\_deployment.png' or `1.png' to Overleaf.}}}%
+            \IfFileExists{realtime_signer_meet.jpg}{%
+                \includegraphics[width=0.98\columnwidth,height=2.85cm,keepaspectratio]{realtime_signer_meet.jpg}%
+            }{%
+                \fbox{\parbox[c][2.2cm][c]{0.95\columnwidth}{\centering\textbf{[Figure 3(a): Deaf Signer Communication]}\\\vspace{1mm}\textit{Upload `realtime\_signer\_meet.png' to Overleaf}}}%
+            }%
         }%
-    }%
-}
-\caption{Assistive teleconferencing with RACER-X in Google Meet.}
+    }
+    \par\vspace{1mm}
+    {\footnotesize (a) Deaf signer communicating via natural gestures in Google Meet, with real time dialogue transcription and synchronized voice output.}
+\end{minipage}
+\vspace{2mm}
+\begin{minipage}{\columnwidth}
+    \centering
+    \IfFileExists{figures/realtime_listener_meet.png}{%
+        \includegraphics[width=0.98\columnwidth,height=2.85cm,keepaspectratio]{figures/realtime_listener_meet.png}%
+    }{%
+        \IfFileExists{realtime_listener_meet.png}{%
+            \includegraphics[width=0.98\columnwidth,height=2.85cm,keepaspectratio]{realtime_listener_meet.png}%
+        }{%
+            \IfFileExists{realtime_listener_meet.jpg}{%
+                \includegraphics[width=0.98\columnwidth,height=2.85cm,keepaspectratio]{realtime_listener_meet.jpg}%
+            }{%
+                \fbox{\parbox[c][2.2cm][c]{0.95\columnwidth}{\centering\textbf{[Figure 3(b): Hearing Participant Receiving Translation]}\\\vspace{1mm}\textit{Upload `realtime\_listener\_meet.png' to Overleaf}}}%
+            }%
+        }%
+    }
+    \par\vspace{1mm}
+    {\footnotesize (b) Hearing call participant receiving continuous translation, with spatial gesture skeleton HUD and real time subtitle banner.}
+\end{minipage}
+\caption{Real time interactive teleconferencing deployment of RACER-X during an active Google Meet video session. The system enables bidirectional communication between deaf signers and hearing participants through synchronized text and synthesized voice.}
 \label{fig:google_meet_deployment}
 \end{figure}
 
@@ -611,7 +637,7 @@ Caption Render \& TTS Audio Synthesis ($L_{\text{out}}$) & 1.5 & 6.2\% \\
 \end{table}
 \vspace{-1mm}
 
-Latency profiling on workstation hardware (Table~\ref{tab:realtime}) indicates 24.3~ms total frame processing ($\sim$41.2~FPS), confirming interactive responsiveness in Fig.~\ref{fig:google_meet_deployment}. Landmark extraction requires 8.8~ms and recurrent inference takes 4.1~ms. Running comfortably below the 33.3~ms limit for 30~FPS webcams maintains continuous synchronization between on screen captions and synthesized voice.
+Latency profiling on workstation hardware (Table~\ref{tab:realtime}) indicates 24.3~ms total frame processing ($\sim$41.2~FPS), confirming interactive responsiveness in Fig.~\ref{fig:google_meet_deployment}. Landmark extraction requires 8.8~ms and recurrent inference takes 4.1~ms. Running comfortably below the 33.3~ms limit for 30~FPS webcams maintains continuous synchronization between on screen captions and synthesized voice. As shown in Fig.~\ref{fig:google_meet_deployment}(a), the deaf individual communicates naturally through continuous signing gestures, while the browser extension renders transcribed subtitles and synthesizes spoken audio for call members. In Fig.~\ref{fig:google_meet_deployment}(b), the hearing participant receives spoken sentences and visual subtitle captions while the upper left preview HUD visualizes tracked MediaPipe hand landmarks in real time.
 
 \subsection{Confidence Constrained Language Refinement}
 \vspace{-1.5mm}
@@ -659,8 +685,9 @@ The current system has some limitations that affect its operation:
 \subsection{Future Work}
 We plan to integrate dense 3D facial mesh modeling for nonmanual prosody, implement automatic left or right hand dominance detection, expand vocabulary coverage across international sign languages, and apply int8 quantization for neural accelerators on edge devices.
 
+
 \subsection{Project Artifacts, Data Availability, and Ethical Considerations}
-Inference executes entirely on the local client host through WebSockets, keeping video streams strictly on the user machine to protect call privacy. The RACER-X implementation repository is accessible at \url{https://github.com/arokiyanithish/RACER-X-Sign-Language}, and training benchmarks are hosted at \url{https://www.kaggle.com/datasets/arokiyanithishj/racer-x-indian-sign-languages}. The INCLUDE benchmark is cited via \cite{b10}, and the raw continuous broadcast archives are available for scientific and noncommercial research upon request to the corresponding author.
+Inference executes entirely on the local client host through WebSockets, keeping video streams strictly on the user machine to protect call privacy. The RACER-X implementation repository is accessible at \href{https://github.com/arokiyanithish/RACER-X-Sign-Language}{\uline{\nolinkurl{https://github.com/arokiyanithish/RACER-X-Sign-Language}}}, and training benchmarks are hosted at \href{https://www.kaggle.com/datasets/arokiyanithishj/racer-x-indian-sign-languages}{\uline{\nolinkurl{https://www.kaggle.com/datasets/arokiyanithishj/racer-x-indian}}} \linkbreak {\uline{\nolinkurl{-sign-languages}}}. The INCLUDE benchmark is cited via \cite{b10}, and the raw continuous broadcast archives are available for scientific and noncommercial research upon request to the corresponding author.
 
 \begin{thebibliography}{00}
 
