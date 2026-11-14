@@ -543,6 +543,23 @@ Level 3 (Coordinate Jumps and Hand Crossings) & 65.0\% & 39.4\% & \textbf{31.0\%
 
 Under severe tracking conflicts and hand crossings, the baseline reaches 65.0\% WER, as shown in Table~\ref{tab:conflict}. RACER-X reaches 31.0\% WER under the same condition. When directional agreement is low ($A_t \approx 0$), the gate reduces state updates during sudden changes in the trajectory.
 
+\begin{figure}[H]
+\centering
+\IfFileExists{figures/robustness_curves.png}{%
+    \includegraphics[width=0.98\columnwidth,height=2.85cm,keepaspectratio]{figures/robustness_curves.png}%
+}{%
+    \IfFileExists{robustness_curves.png}{%
+        \includegraphics[width=0.98\columnwidth,height=2.85cm,keepaspectratio]{robustness_curves.png}%
+    }{%
+        \fbox{\parbox[c][2.4cm][c]{0.95\columnwidth}{\centering\textbf{[Figure 5: Robustness Curves]}\\\vspace{1mm}\textit{Upload `robustness\_curves.png' to Overleaf}}}%
+    }%
+}
+\caption{Word error rate (WER) degradation curves comparing the baseline recurrent model against RACER-X under (a) increasing landmark occlusion and (b) dynamic spatial motion conflict levels.}
+\label{fig:robustness_curves}
+\end{figure}
+
+Fig.~\ref{fig:robustness_curves} compares the degradation slopes across both stress conditions. While the baseline error escalates rapidly beyond 40\% occlusion and severe hand crossings, RACER-X maintains a stable response curve due to reliability and conflict gated updates.
+
 \subsection{Signer Independent Generalization}
 \vspace{-1.5mm}
 
