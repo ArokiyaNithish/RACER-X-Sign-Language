@@ -15,8 +15,8 @@
 
 % Professional spacing and formatting
 \renewcommand{\arraystretch}{1.12}
-\setlength{\intextsep}{3pt plus 1pt minus 1pt}
-\setlength{\textfloatsep}{3pt plus 1pt minus 1pt}
+\setlength{\intextsep}{4pt plus 1pt minus 1pt}
+\setlength{\textfloatsep}{4pt plus 1pt minus 1pt}
 
 \begin{document}
 
@@ -33,13 +33,13 @@
 \maketitle
 
 \begin{abstract}
-This supplementary document provides extended mathematical derivations, comprehensive architectural specifications, complete hyperparameter configurations, dataset curation protocols, qualitative error analyses, and cross platform latency benchmarks supporting the main manuscript. All experimental results, mathematical proofs, and system profiles referenced in Paper ID 1751 are documented in detail to ensure full scientific reproducibility.
+This official supplementary document provides extended mathematical proofs, complete structural hyperparameter configurations, end to end system flowcharts, dataset curation breakdowns, working video and teleconferencing demos, cross platform latency benchmarks, and verifiable repository links supporting Paper ID 1751. All empirical evaluations, parameter counts, and baseline comparisons are documented to ensure full scientific reproducibility.
 \end{abstract}
 
 \section{Mathematical Formulations and Theoretical Proofs}
 
 \subsection{Discrete Frenet Serret Invariant Geometry}
-In continuous gesture recognition, planar projections from single camera sensors suffer from perspective ambiguity. When hands move toward or away from the camera along the optical axis, two dimensional coordinates $p_{2D} = (x, y)$ register minimal displacement, while the actual physical velocity in three dimensional space is significant. To establish coordinate frame invariance under rigid spatial transformations, RACER-X computes the instantaneous curvature $\kappa_t$ and torsion $\tau_t$ of joint trajectories.
+In continuous gesture recognition, planar projections from single camera sensors suffer from perspective ambiguity. When hands move toward or away from the camera along the optical axis, two dimensional coordinates register minimal displacement, while the actual physical velocity in three dimensional space is significant. To establish coordinate frame invariance under rigid spatial transformations, RACER-X computes the instantaneous curvature $\kappa_t$ and torsion $\tau_t$ of joint trajectories.
 
 Let $\mathbf{P}_t \in \mathbb{R}^3$ denote the anatomically normalized spatial position vector of a tracked landmark at time step $t$. Using symmetric backward finite differences with temporal interval $\Delta t$, the discrete velocity $\mathbf{V}_t$, acceleration $\mathbf{A}_t$, and jerk $\mathbf{J}_t$ vectors are defined as:
 \begin{equation}
@@ -122,7 +122,16 @@ where $\Delta \hat{\mathbf{P}}_t = \hat{\mathbf{P}}_{t+1} - \hat{\mathbf{P}}_t$ 
 \end{equation}
 with regularization weight $\lambda_{\text{phys}} = 0.05$. By penalizing instantaneous spatial jumps between successive frames, the gradient optimization prevents the recurrent state from overfitting to high frequency landmark jitter.
 
-\section{Extended Hyperparameter and Architectural Specifications}
+\section{System Flowchart and Structural Specifications}
+
+Fig.~\ref{fig:flowchart} illustrates the comprehensive end to end architectural flowchart of the RACER-X continuous sign language translation system, spanning live video ingestion, 75 MediaPipe holistic landmark extraction, dual stream geometric feature encoding, adaptive reliability gating, causal recurrent cell updating, Bayesian prior CTC decoding, and synchronized dual output delivery.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/racerx_flowchart.png}
+\caption{Comprehensive end to end architectural flowchart of the RACER-X continuous sign language recognition and live teleconferencing system, displaying the causal progression across sensory ingestion, geometric encoding, adaptive state gating, sequence decoding, and client delivery.}
+\label{fig:flowchart}
+\end{figure*}
 
 Table~\ref{tab:hyperparameters} documents the comprehensive network architecture, layer shapes, parameter counts, and training configuration of the RACER-X framework.
 
@@ -202,20 +211,40 @@ Continuous Broadcast (ISH News) & 1,104 & 4,884 & 79.8\% & 26.1\% \\
 }
 \end{table}
 
-\section{Extended Experimental Degradation Profiling}
+\section{Continuous Sign Translation Execution Demo}
 
-To validate the theoretical robustness claims, Fig.~\ref{fig:robustness_curves_supp} plots the continuous empirical degradation profiles comparing the Baseline GRU, Reliability Gating, and the complete RACER-X framework.
+Fig.~\ref{fig:video_demo} showcases the live continuous video execution pipeline of the RACER-X inference engine on continuous broadcast footage, displaying real time 3D skeleton keypoint overlay, tracking reliability confidence ($R_t = 0.92$), and decoded continuous subtitle streaming.
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.98\columnwidth,height=3.2cm,keepaspectratio]{figures/robustness_curves.png}
+\includegraphics[width=0.98\columnwidth]{figures/racerx_video_translation.png}
+\caption{Continuous sign language translation execution output of RACER-X operating on continuous broadcast footage, displaying active bounding box tracking, 3D hand skeleton topology, instantaneous reliability score ($R_t = 0.92$), and translated subtitle stream.}
+\label{fig:video_demo}
+\end{figure}
+
+\section{Degradation Profiling and Live Meeting Demos}
+
+To evaluate fault tolerance under real world call conditions, we tested RACER-X against standard GRU baselines across increasing keypoint occlusion ratios (0\% to 40\%) and dynamic spatial motion conflict levels (Clean, Jitter, Blur, Crossings). Fig.~\ref{fig:robustness_curves_supp} visualizes the resulting Word Error Rate (WER) degradation curves.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.98\columnwidth]{figures/robustness_curves.png}
 \caption{Empirical word error rate (WER) response curves under progressive degradation: (a) Landmark occlusion ratio from 0\% to 40\%; (b) Dynamic spatial motion conflict severity across clean, jitter, blur, and severe hand crossing regimes.}
 \label{fig:robustness_curves_supp}
 \end{figure}
 
 Under severe landmark dropout (40\% occlusion in Fig.~\ref{fig:robustness_curves_supp}a), the baseline model loses tracking consistency and exhibits a WER escalation of $+29.9$ percentage points (reaching 68.4\% WER). In contrast, RACER-X incurs only a $+7.5$ percentage point change (retaining 32.3\% WER), confirming that adaptive gate closure prevents catastrophic error propagation.
 
-\section{Qualitative Case Studies and Error Diagnostics}
+Fig.~\ref{fig:teleconferencing_demos} illustrates live deployment in an active Google Meet session between a deaf participant and a hearing colleague.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.48\textwidth]{figures/realtime_signer_meet.png}
+\hfill
+\includegraphics[width=0.48\textwidth]{figures/realtime_listener_meet.png}
+\caption{Real time deployment of RACER-X in Google Meet teleconferencing: (Left) Deaf signer view operating in Listen Mode with real time dialogue translation cards; (Right) Hearing participant view with real time SignBridge gesture HUD and synchronized subtitle stream.}
+\label{fig:teleconferencing_demos}
+\end{figure*}
 
 Table~\ref{tab:qualitative_examples} presents representative qualitative translation transcripts across challenging teleconferencing scenarios, comparing raw baseline predictions against RACER-X outputs.
 
@@ -242,7 +271,7 @@ Low Light Ambient Studio Frame & \textit{"Project meeting cancel"} (False Predic
 
 \section{Cross Platform Real Time Latency Benchmarks}
 
-To demonstrate suitability for real world deployment on edge devices and diverse video conferencing systems, Table~\ref{tab:hardware_latency} provides component wise latency profiles measured across multiple hardware architectures.
+To verify that the system satisfies human conversational thresholds across diverse client machines, Table~\ref{tab:hardware_latency} provides component wise latency profiles measured across four representative hardware targets.
 
 \begin{table}[H]
 \centering
@@ -270,13 +299,30 @@ DOM Render \& Voice TTS ($L_{\text{out}}$) & 1.5 ms & 1.6 ms & 1.2 ms & 4.1 ms \
 
 Across standard laptop hardware (Intel Core i7, AMD Ryzen 7, Apple M2), the total processing budget remains consistently below the 33.3~ms threshold required for real time 30~FPS teleconferencing, delivering instantaneous subtitle injection and synthesized voice synchronization during live Google Meet and Zoom video calls.
 
-\section{WebRTC Browser Extension Architecture}
+\section{Official Repository Proofs and Verification Metadata}
 
-The browser extension interfaces directly with Google Meet through an isolated content script runtime:
-\begin{enumerate}
-    \item \textbf{Dual Mode Switcher:} A toggle button allows participants to select between \textit{Sign Mode} (webcam active, MediaPipe skeleton tracking, real time gesture translation to speech and in call chat) and \textit{Listen Mode} (webcam released, hardware camera light off, dialogue card active for receiving translated text and audio).
-    \item \textbf{Asynchronous WebRTC Capture:} Video frames are captured at 15 FPS with JPEG quality 0.75 and streamed over a local loopback WebSocket connection (\texttt{ws://localhost:8000/ws/sign-recognition}).
-    \item \textbf{Multi Participant In Call Chat Broadcast:} In addition to local audio synthesis, translated sentences are injected directly into Google Meet in call chat as \texttt{[Sign Language]: <text>}, allowing all meeting attendees to read real time subtitles simultaneously.
-\end{enumerate}
+To satisfy IEEE reproducibility standards, all underlying source code, pretrained network checkpoints, master datasets, and evaluation scripts are maintained at the permanent public repositories listed in Table~\ref{tab:official_proofs}.
+
+\begin{table}[H]
+\centering
+\caption{Permanent Repository Links, Checkpoints and Verification Metadata}
+\label{tab:official_proofs}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lp{5.2cm}}
+\toprule
+\textbf{Resource Name} & \textbf{Permanent URL / Cryptographic Hash} \\
+\midrule
+Official Code Repository & \url{https://github.com/arokiyanithish/RACER-X-Sign-Language} \\
+Kaggle Master Dataset & \url{https://www.kaggle.com/datasets/arokiyanithishj/racer-x-indian-sign-languages} \\
+Pretrained Checkpoint & \url{https://github.com/arokiyanithish/RACER-X-Sign-Language/releases/tag/v1.0.0} \\
+Dataset Size / Classes & 9,168 Video Sequences (184,520 Frames) Across 2,748 Classes \\
+Model Parameter Count & 1,829,947 Trainable Parameters (6.98 MB FP32 / 1.74 MB INT8) \\
+Host Institution & Vel Tech Rangarajan Dr. Sagunthala R\&D Institute of Science and Technology \\
+Department / City & Department of Artificial Intelligence \& Data Science, Chennai 600062, India \\
+Author Contact & Dr. P. Santhi (drpsanthi@veltech.edu.in), Arokiya Nithish J (arokiyanithishj@gmail.com) \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
 
 \end{document}
