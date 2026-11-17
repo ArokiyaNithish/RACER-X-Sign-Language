@@ -69,8 +69,8 @@ def create_supplementary_pdf(filename="RACER_X_Supplementary_Material.pdf"):
         'DocTitle',
         parent=styles['Heading1'],
         fontName='Times-Bold',
-        fontSize=13.5,
-        leading=16.5,
+        fontSize=13.0,
+        leading=16.0,
         alignment=1,
         textColor=colors.HexColor('#002B49'),
         spaceAfter=3
@@ -80,8 +80,8 @@ def create_supplementary_pdf(filename="RACER_X_Supplementary_Material.pdf"):
         'AuthorBlock',
         parent=styles['Normal'],
         fontName='Times-Roman',
-        fontSize=9.5,
-        leading=13,
+        fontSize=9.0,
+        leading=12.5,
         alignment=1,
         textColor=colors.HexColor('#222222'),
         spaceAfter=2
@@ -91,8 +91,8 @@ def create_supplementary_pdf(filename="RACER_X_Supplementary_Material.pdf"):
         'MetaBlock',
         parent=styles['Normal'],
         fontName='Times-Bold',
-        fontSize=8.8,
-        leading=11.5,
+        fontSize=8.5,
+        leading=11.0,
         alignment=1,
         textColor=colors.HexColor('#005A9C'),
         spaceAfter=4
@@ -102,10 +102,10 @@ def create_supplementary_pdf(filename="RACER_X_Supplementary_Material.pdf"):
         'SectionH1',
         parent=styles['Heading2'],
         fontName='Times-Bold',
-        fontSize=10.5,
-        leading=13.5,
+        fontSize=10.0,
+        leading=13.0,
         textColor=colors.HexColor('#002B49'),
-        spaceBefore=8,
+        spaceBefore=7,
         spaceAfter=3
     )
 
@@ -113,10 +113,10 @@ def create_supplementary_pdf(filename="RACER_X_Supplementary_Material.pdf"):
         'SectionH2',
         parent=styles['Heading3'],
         fontName='Times-BoldItalic',
-        fontSize=9.2,
-        leading=12,
+        fontSize=9.0,
+        leading=11.5,
         textColor=colors.HexColor('#111111'),
-        spaceBefore=6,
+        spaceBefore=5,
         spaceAfter=2
     )
 
@@ -124,19 +124,19 @@ def create_supplementary_pdf(filename="RACER_X_Supplementary_Material.pdf"):
         'BodyDark',
         parent=styles['Normal'],
         fontName='Times-Roman',
-        fontSize=8.5,
-        leading=11.6,
+        fontSize=8.3,
+        leading=11.2,
         alignment=4, # Justify
         textColor=colors.HexColor('#1a1a1a'),
-        spaceAfter=4
+        spaceAfter=3
     )
 
     code_style = ParagraphStyle(
         'MathBlock',
         parent=styles['Normal'],
         fontName='Courier',
-        fontSize=8.0,
-        leading=11.0,
+        fontSize=7.8,
+        leading=10.5,
         alignment=0,
         textColor=colors.HexColor('#0b2e4f'),
         leftIndent=12,
@@ -148,8 +148,8 @@ def create_supplementary_pdf(filename="RACER_X_Supplementary_Material.pdf"):
         'TableHeader',
         parent=styles['Normal'],
         fontName='Times-Bold',
-        fontSize=7.8,
-        leading=10.0,
+        fontSize=7.5,
+        leading=9.5,
         alignment=1,
         textColor=colors.white
     )
@@ -158,8 +158,8 @@ def create_supplementary_pdf(filename="RACER_X_Supplementary_Material.pdf"):
         'TableCell',
         parent=styles['Normal'],
         fontName='Times-Roman',
-        fontSize=7.5,
-        leading=9.5,
+        fontSize=7.2,
+        leading=9.2,
         alignment=0,
         textColor=colors.HexColor('#111111')
     )
@@ -168,8 +168,8 @@ def create_supplementary_pdf(filename="RACER_X_Supplementary_Material.pdf"):
         'TableCellCenter',
         parent=styles['Normal'],
         fontName='Times-Roman',
-        fontSize=7.5,
-        leading=9.5,
+        fontSize=7.2,
+        leading=9.2,
         alignment=1,
         textColor=colors.HexColor('#111111')
     )
@@ -178,12 +178,30 @@ def create_supplementary_pdf(filename="RACER_X_Supplementary_Material.pdf"):
         'Caption',
         parent=styles['Normal'],
         fontName='Times-Italic',
-        fontSize=7.8,
-        leading=10.5,
+        fontSize=7.5,
+        leading=10.0,
         alignment=1,
         textColor=colors.HexColor('#333333'),
-        spaceBefore=3,
-        spaceAfter=6
+        spaceBefore=2,
+        spaceAfter=5
+    )
+
+    proof_key = ParagraphStyle(
+        'ProofKey',
+        parent=styles['Normal'],
+        fontName='Times-Bold',
+        fontSize=7.5,
+        leading=9.5,
+        textColor=colors.HexColor('#002B49')
+    )
+
+    proof_val = ParagraphStyle(
+        'ProofVal',
+        parent=styles['Normal'],
+        fontName='Courier',
+        fontSize=7.2,
+        leading=9.2,
+        textColor=colors.HexColor('#111111')
     )
 
     story = []
@@ -205,19 +223,19 @@ def create_supplementary_pdf(filename="RACER_X_Supplementary_Material.pdf"):
         "<b>Paper ID: 1751</b> &nbsp;|&nbsp; <b>Conference: ICCIDS 2027 (IEEE)</b> &nbsp;|&nbsp; <b>Track: Artificial Intelligence & Computer Vision</b>",
         meta_style
     ))
-    story.append(HRFlowable(width="100%", thickness=1.0, color=colors.HexColor('#002B49'), spaceAfter=5))
+    story.append(HRFlowable(width="100%", thickness=1.0, color=colors.HexColor('#002B49'), spaceAfter=4))
 
     abstract_text = (
-        "<b>Abstract—</b>This supplementary document provides complete mathematical proofs, full network hyperparameter "
-        "tables, master dataset domain breakdowns, error diagnosis case studies, and cross-platform real-time latency profiles "
-        "supporting the primary manuscript (Paper ID 1751). The documented derivations establish the coordinate-frame invariance "
-        "of discrete Frenet-Serret curvature and torsion, prove the asymptotic memory stability of the causal reliability gate, "
-        "and benchmark the 24.3 ms WebRTC browser extension across diverse client architectures."
+        "<b>Abstract—</b>This supplementary document provides comprehensive architectural flowcharts, working execution demos, "
+        "complete mathematical invariance proofs, full neural network hyperparameters, master dataset domain breakdowns, "
+        "empirical robustness degradation curves, and official open-source verification proofs (GitHub and Kaggle links) "
+        "supporting Paper ID 1751. All documented artifacts establish scientific reproducibility and validate real-time 24.3 ms "
+        "teleconferencing performance for deaf-to-hearing communication."
     )
     story.append(Paragraph(abstract_text, body_style))
-    story.append(Spacer(1, 3))
+    story.append(Spacer(1, 2))
 
-    story.append(Paragraph("Section S1: Mathematical Formulations and Theoretical Proofs", h1_style))
+    story.append(Paragraph("Section S1: Mathematical Formulations and Invariance Proofs", h1_style))
     story.append(Paragraph("S1.1 Discrete Frenet-Serret Invariant Geometry", h2_style))
     story.append(Paragraph(
         "Standard 2D planar projections of 3D sign trajectories suffer from perspective ambiguity when hands move "
@@ -265,11 +283,31 @@ def create_supplementary_pdf(filename="RACER_X_Supplementary_Material.pdf"):
     ))
 
     # =============================================================
-    # PAGE 2: SECTION S2 (ARCHITECTURE) & SECTION S3 (DOMAINS)
+    # PAGE 2: SECTION S2 (SYSTEM FLOWCHART & PIPELINE ARCHITECTURE)
     # =============================================================
     story.append(PageBreak())
 
-    story.append(Paragraph("Section S2: Comprehensive Neural Architecture and Hyperparameters", h1_style))
+    story.append(Paragraph("Section S2: Complete System Flowchart and Processing Pipeline", h1_style))
+    story.append(Paragraph(
+        "Figure S1 illustrates the comprehensive end-to-end architectural flowchart of the RACER-X continuous sign language translation "
+        "system, spanning live video ingestion, 75 MediaPipe holistic landmark extraction, dual-stream geometric feature encoding, "
+        "adaptive reliability gating, causal recurrent cell updating, Bayesian prior CTC decoding, and synchronized dual-output delivery.",
+        body_style
+    ))
+
+    flowchart_img = os.path.join("figures", "racerx_flowchart.png")
+    if os.path.exists(flowchart_img):
+        story.append(Image(flowchart_img, width=7.0*inch, height=3.45*inch))
+        story.append(Paragraph(
+            "Figure S1: End-to-end architectural flowchart of RACER-X: (1) WebRTC continuous video ingestion; (2) 75 Holistic 3D keypoint extraction; "
+            "(3A) Discrete Frenet-Serret invariant kinematics (curvature & torsion); (3B) Bilateral cross-hand attention context; "
+            "(4) Adaptive reliability gate (R_t) and spatial agreement (A_t); (5) Causal recurrent cell with physics loss; "
+            "(6) Bayesian prior balanced CTC decoding; (7) Live Google Meet DOM subtitle injection and synthesized speech audio.",
+            caption_style
+        ))
+
+    story.append(Spacer(1, 3))
+    story.append(Paragraph("S2.1 Comprehensive Neural Architecture and Hyperparameters", h2_style))
     story.append(Paragraph(
         "Table S1 outlines the structural architecture, layer dimensions, parameter counts, and optimization hyperparameters "
         "employed across the RACER-X framework.", body_style
@@ -289,7 +327,6 @@ def create_supplementary_pdf(filename="RACER_X_Supplementary_Material.pdf"):
         [Paragraph("Vocabulary Size (V)", table_cell_style), Paragraph("2,748 unique classes", table_cell_center), Paragraph("CTC output vocabulary of Indian Sign Language", table_cell_style)],
         [Paragraph("Sliding Window Size (W)", table_cell_style), Paragraph("40 frames (~1.33 s)", table_cell_center), Paragraph("Continuous WebRTC frame buffer queue", table_cell_style)],
         [Paragraph("Optimization Algorithm", table_cell_style), Paragraph("AdamW (beta=0.9, 0.999)", table_cell_center), Paragraph("Weight decay = 1.0e-4, initial LR = 1.0e-3", table_cell_style)],
-        [Paragraph("LR Scheduler", table_cell_style), Paragraph("Cosine Annealing", table_cell_center), Paragraph("5-epoch linear warmup, 120 total epochs", table_cell_style)],
         [Paragraph("Physics Loss Weight (lambda_phys)", table_cell_style), Paragraph("0.05", table_cell_center), Paragraph("Kinematic acceleration penalty weight", table_cell_style)],
         [Paragraph("Bayesian Prior Discount (beta)", table_cell_style), Paragraph("0.35", table_cell_center), Paragraph("Mitigates class-frequency dominance during CTC beam search", table_cell_style)]
     ]
@@ -305,7 +342,11 @@ def create_supplementary_pdf(filename="RACER_X_Supplementary_Material.pdf"):
     story.append(t_s1)
     story.append(Paragraph("Table S1: Detailed neural architecture and hyperparameter specifications of the RACER-X framework.", caption_style))
 
-    story.append(Spacer(1, 4))
+    # =============================================================
+    # PAGE 3: SECTION S3 (DATASET) & SECTION S4 (WORKING DEMO)
+    # =============================================================
+    story.append(PageBreak())
+
     story.append(Paragraph("Section S3: Master Dataset Composition and Domain Breakdown", h1_style))
     story.append(Paragraph(
         "The master benchmark unites 9,168 video sequences across 2,748 unique Indian Sign Language classes. "
@@ -343,28 +384,45 @@ def create_supplementary_pdf(filename="RACER_X_Supplementary_Material.pdf"):
     story.append(t_s2)
     story.append(Paragraph("Table S2: Semantic domain breakdown, vocabulary distribution, and recognition accuracy across the Unified Master ISL Benchmark.", caption_style))
 
+    story.append(Spacer(1, 3))
+    story.append(Paragraph("Section S4: Working Execution Demos and Video Inference Output", h1_style))
+    story.append(Paragraph(
+        "Figure S2 displays the working visual demonstration of RACER-X executing real-time sign recognition on a continuous test video stream "
+        "(video.mp4). The on-screen display illustrates live 3D skeletal overlay tracking, optical tracking reliability monitoring (R_t = 0.51), "
+        "and instantaneous continuous sentence decoding.", body_style
+    ))
+
+    video_demo_img = os.path.join("figures", "racerx_video_translation.png")
+    if os.path.exists(video_demo_img):
+        story.append(Image(video_demo_img, width=6.6*inch, height=2.45*inch))
+        story.append(Paragraph(
+            "Figure S2: Working execution demonstration of RACER-X during continuous video stream inference (video.mp4). "
+            "Top status bar visualizes instantaneous tracking reliability (R_t = 0.51), dual-hand skeletal linkages, and real-time decoded gloss stream.",
+            caption_style
+        ))
+
     # =============================================================
-    # PAGE 3: SECTION S4 (ROBUSTNESS) & SECTION S5 (DEPLOYMENT)
+    # PAGE 4: SECTION S5 (DEGRADATION & TELECONFERENCING DEPLOYMENT)
     # =============================================================
     story.append(PageBreak())
 
-    story.append(Paragraph("Section S4: Empirical Robustness and Degradation Analysis", h1_style))
+    story.append(Paragraph("Section S5: Empirical Degradation Profiles and Teleconferencing Demos", h1_style))
     story.append(Paragraph(
         "To evaluate fault-tolerance under real-world call conditions, we tested RACER-X against standard GRU baselines across "
         "increasing keypoint occlusion ratios (0% to 40%) and dynamic spatial-motion conflict levels (Clean, Jitter, Blur, Crossings). "
-        "Figure S1 visualizes the resulting Word Error Rate (WER) degradation curves.", body_style
+        "Figure S3 visualizes the resulting Word Error Rate (WER) degradation curves.", body_style
     ))
 
     graph_path = os.path.join("figures", "robustness_curves.png")
     if os.path.exists(graph_path):
-        story.append(Image(graph_path, width=6.8*inch, height=2.35*inch))
-        story.append(Paragraph("Figure S1: Empirical Word Error Rate (WER) degradation profiles: (a) Under progressive landmark occlusion (0% to 40%); (b) Under dynamic spatial-motion conflict levels (Clean, Jitter, Motion Blur, and Hand Crossings).", caption_style))
+        story.append(Image(graph_path, width=6.8*inch, height=2.30*inch))
+        story.append(Paragraph("Figure S3: Empirical Word Error Rate (WER) degradation profiles: (a) Under progressive landmark occlusion (0% to 40%); (b) Under dynamic spatial-motion conflict levels (Clean, Jitter, Motion Blur, and Hand Crossings).", caption_style))
 
-    story.append(Spacer(1, 4))
-    story.append(Paragraph("Section S5: Real-Time Teleconferencing Deployment in Google Meet", h1_style))
+    story.append(Spacer(1, 3))
+    story.append(Paragraph("S5.1 Real-Time Google Meet Teleconferencing Deployment", h2_style))
     story.append(Paragraph(
-        "The browser extension operates directly inside Google Meet video sessions via an asynchronous WebRTC loopback pipeline. "
-        "Figure S2 illustrates the live bidirectional communication exchange between a deaf sign language user and a hearing participant.",
+        "The browser extension operates directly inside live Google Meet video calls via an asynchronous WebRTC loopback pipeline. "
+        "Figure S4 illustrates the working bidirectional teleconferencing deployment between a deaf sign language user and a hearing participant.",
         body_style
     ))
 
@@ -373,9 +431,9 @@ def create_supplementary_pdf(filename="RACER_X_Supplementary_Material.pdf"):
     
     img_row = []
     if os.path.exists(signer_img):
-        img_row.append(Image(signer_img, width=3.35*inch, height=1.75*inch))
+        img_row.append(Image(signer_img, width=3.35*inch, height=1.70*inch))
     if os.path.exists(listener_img):
-        img_row.append(Image(listener_img, width=3.35*inch, height=1.75*inch))
+        img_row.append(Image(listener_img, width=3.35*inch, height=1.70*inch))
 
     if len(img_row) == 2:
         img_table = Table([[img_row[0], img_row[1]]], colWidths=[3.4*inch, 3.4*inch])
@@ -386,11 +444,11 @@ def create_supplementary_pdf(filename="RACER_X_Supplementary_Material.pdf"):
             ('RIGHTPADDING', (0, 0), (-1, -1), 2)
         ]))
         story.append(img_table)
-        story.append(Paragraph("Figure S2: Real-time Google Meet teleconferencing deployment: (Left) Deaf signer communicating via continuous gestures with live dialogue transcription; (Right) Hearing participant receiving synthesized voice and visual captions alongside MediaPipe spatial tracking HUD.", caption_style))
+        story.append(Paragraph("Figure S4: Working live Google Meet teleconferencing deployment: (Left) Deaf signer communicating via continuous gestures with live dialogue transcription; (Right) Hearing participant receiving synthesized voice and visual captions alongside MediaPipe spatial tracking HUD.", caption_style))
 
     # Qualitative Table
-    story.append(Spacer(1, 4))
-    story.append(Paragraph("S5.1 Qualitative Case Studies and Error Diagnostics", h2_style))
+    story.append(Spacer(1, 2))
+    story.append(Paragraph("S5.2 Qualitative Stress Scenario Case Studies", h2_style))
     qual_data = [
         [Paragraph("Stress Input Scenario", table_header_style), Paragraph("Standard Baseline (GRU)", table_header_style), Paragraph("RACER-X Output (Proposed)", table_header_style)],
         [Paragraph("Fast Greeting with Transition Blur", table_cell_style), Paragraph("<i>Hello welcome tomorrow</i> (Substitution)", table_cell_style), Paragraph("<b>Hello everyone welcome</b> (Exact Match)", table_cell_style)],
@@ -410,7 +468,7 @@ def create_supplementary_pdf(filename="RACER_X_Supplementary_Material.pdf"):
     story.append(Paragraph("Table S4: Qualitative translation outputs across challenging teleconferencing stress conditions.", caption_style))
 
     # =============================================================
-    # PAGE 4: SECTION S6 (LATENCY) & SECTION S7 (ETHICS & CODE)
+    # PAGE 5: SECTION S6 (LATENCY) & SECTION S7 (OFFICIAL PROOFS)
     # =============================================================
     story.append(PageBreak())
 
@@ -445,22 +503,66 @@ def create_supplementary_pdf(filename="RACER_X_Supplementary_Material.pdf"):
     story.append(t_s5)
     story.append(Paragraph("Table S5: Measured per-component latency budgets across diverse client hardware targets (Intel x86, AMD x86, Apple Silicon, and Raspberry Pi ARM).", caption_style))
 
-    story.append(Spacer(1, 6))
-    story.append(Paragraph("Section S7: Ethical Governance, Consent, and Reproducibility", h1_style))
+    story.append(Spacer(1, 4))
+    story.append(Paragraph("Section S7: Official Open-Source Repository & Dataset Verification Proofs", h1_style))
     story.append(Paragraph(
-        "<b>Privacy and Client Isolation:</b> The browser extension processes all camera frames on the user's local workstation "
-        "through an isolated localhost WebSocket connection. Raw video streams are never transmitted to third-party cloud servers. "
-        "During live calls, only recognized text and synthesized audio streams are delivered into the WebRTC session.<br/>"
-        "<b>Open-Source Reproducibility:</b> The complete RACER-X model implementation, inference server, and Chrome extension are "
-        "openly accessible at: <b>https://github.com/arokiyanithish/RACER-X-Sign-Language</b>. Benchmark dataset partitions and "
-        "extracted kinematic coordinates are archived at: <b>https://www.kaggle.com/datasets/arokiyanithishj/racer-x-indian-sign-languages</b>.",
+        "To ensure uncompromising scientific transparency and facilitate community benchmarking, all codebases, pre-trained "
+        "model checkpoints, Chrome extension packages, and dataset partitions are publicly documented and verified below:",
         body_style
     ))
+
+    proof_data = [
+        [Paragraph("Verification Metric", table_header_style), Paragraph("Official Verification Proof / Permanent URL", table_header_style), Paragraph("Artifact Verification Details", table_header_style)],
+        [
+            Paragraph("Official GitHub Repository", proof_key),
+            Paragraph("<b>https://github.com/arokiyanithish/RACER-X-Sign-Language</b>", proof_val),
+            Paragraph("Full PyTorch model, FastAPI server, WebRTC extension, and build scripts", table_cell_style)
+        ],
+        [
+            Paragraph("Kaggle Benchmark Dataset", proof_key),
+            Paragraph("<b>https://www.kaggle.com/datasets/arokiyanithishj/racer-x-indian-sign-languages</b>", proof_val),
+            Paragraph("9,168 Indian Sign Language video samples, 2,748 classes, normalized CSV", table_cell_style)
+        ],
+        [
+            Paragraph("Model Checkpoint File", proof_key),
+            Paragraph("<b>checkpoints/best_racer_x.pth</b> (Size: 6.98 MB)", proof_val),
+            Paragraph("1,829,947 parameters (100% trained end-to-end weights)", table_cell_style)
+        ],
+        [
+            Paragraph("Vocabulary Lexicon Index", proof_key),
+            Paragraph("<b>checkpoints/vocab.json</b> (2,748 Unique Classes)", proof_val),
+            Paragraph("Complete ISL token dictionary with inverse class mappings", table_cell_style)
+        ],
+        [
+            Paragraph("WebRTC Browser Extension", proof_key),
+            Paragraph("<b>extension/</b> (Google Chrome Manifest V3)", proof_val),
+            Paragraph("Dual-mode (Sign vs Listen) live DOM injection and AudioContext TTS", table_cell_style)
+        ],
+        [
+            Paragraph("Local Client Host Privacy", proof_key),
+            Paragraph("<b>ws://localhost:8000/ws/sign-recognition</b>", proof_val),
+            Paragraph("Zero external cloud transmission; 100% on-device private inference", table_cell_style)
+        ]
+    ]
+
+    t_proof = Table(proof_data, colWidths=[1.8*inch, 3.2*inch, 2.0*inch])
+    t_proof.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#002B49')),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#cccccc')),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.HexColor('#ffffff'), colors.HexColor('#f8f9fa')])
+    ]))
+    story.append(t_proof)
+    story.append(Paragraph("Table S6: Official open-source repository, dataset benchmark, model checkpoint, and privacy governance verification proofs.", caption_style))
+
     story.append(Spacer(1, 4))
     story.append(Paragraph(
         "<b>Institutional Sign-Off & Verification:</b><br/>"
-        "Research Project ID: 1751 &nbsp;|&nbsp; Principal Investigator: Dr. P. Santhi (drpsanthi@veltech.edu.in)<br/>"
-        "Department of Artificial Intelligence & Data Science, Vel Tech R&D Institute of Science and Technology, Chennai, India.",
+        "Research Project ID: 1751 &nbsp;|&nbsp; Conference: IEEE ICCIDS 2027<br/>"
+        "Principal Investigator: Dr. P. Santhi (drpsanthi@veltech.edu.in) &nbsp;|&nbsp; "
+        "Lead Student Investigator: Arokiya Nithish J (arokiyanithishj@gmail.com)<br/>"
+        "Department of Artificial Intelligence & Data Science, Vel Tech R&D Institute of Science and Technology, Chennai 600062, India.",
         meta_style
     ))
 

@@ -1,0 +1,71 @@
+{
+  "paper": {
+    "title": "RACER-X: Reliability and Conflict Conditioned Causal Recurrent State Updating for Fault Tolerant Continuous Sign Language Recognition",
+    "paper_id": "1751",
+    "conference": "IEEE ICCIDS 2027",
+    "authors": [
+      {
+        "name": "Dr. P. Santhi",
+        "email": "drpsanthi@veltech.edu.in",
+        "affiliation": "Department of Artificial Intelligence & Data Science, Vel Tech R&D Institute of Science and Technology, Chennai 600062, India"
+      },
+      {
+        "name": "Ishwarya M",
+        "email": "ishwarya.m13@gmail.com",
+        "affiliation": "Department of Artificial Intelligence & Data Science, Vel Tech R&D Institute of Science and Technology, Chennai 600062, India"
+      },
+      {
+        "name": "Arokiya Nithish J",
+        "email": "arokiyanithishj@gmail.com",
+        "affiliation": "Department of Artificial Intelligence & Data Science, Vel Tech R&D Institute of Science and Technology, Chennai 600062, India"
+      }
+    ]
+  },
+  "repositories": {
+    "github_code_repository": "https://github.com/arokiyanithish/RACER-X-Sign-Language",
+    "kaggle_master_dataset": "https://www.kaggle.com/datasets/arokiyanithishj/racer-x-indian-sign-languages",
+    "checkpoint_weights": "https://github.com/arokiyanithish/RACER-X-Sign-Language/releases/tag/v1.0.0"
+  },
+  "dataset_specifications": {
+    "dataset_name": "RACER-X ISL Benchmark (Continuous Broadcast + AI4Bharat INCLUDE)",
+    "total_video_sequences": 9168,
+    "unique_vocabulary_classes": 2748,
+    "continuous_broadcast_sequences": 4884,
+    "isolated_include_clips": 4284,
+    "total_annotated_frames": 184520,
+    "frame_rate_fps": 30,
+    "landmark_dimensions_per_frame": 225,
+    "split_distribution": {
+      "training_set": "70% (6,418 sequences)",
+      "validation_set": "15% (1,375 sequences)",
+      "testing_set": "15% (1,375 sequences)"
+    }
+  },
+  "model_specifications": {
+    "architecture": "RACER-X Dual-Stream Causal Recurrent Network",
+    "total_trainable_parameters": 1829947,
+    "model_size_fp32_mb": 6.98,
+    "model_size_int8_quantized_mb": 1.74,
+    "encoder_latent_dim": 256,
+    "recurrent_hidden_dim": 512,
+    "ctc_projection_dim": 2749,
+    "bidirectional": false,
+    "causal_execution": true
+  },
+  "performance_metrics": {
+    "clean_test_accuracy_pct": 81.5,
+    "clean_word_error_rate_wer_pct": 24.8,
+    "clean_character_error_rate_cer_pct": 14.2,
+    "degraded_occlusion_40pct_wer": 32.1,
+    "baseline_gru_occlusion_40pct_wer": 56.4,
+    "baseline_bilstm_occlusion_40pct_wer": 48.7,
+    "end_to_end_latency_ms": 24.3,
+    "throughput_fps": 41.2
+  },
+  "cross_platform_latency_ms": {
+    "intel_i7_12700h_cpu": { "total_latency_ms": 24.3, "fps": 41.2 },
+    "amd_ryzen_7_5800h_cpu": { "total_latency_ms": 26.1, "fps": 38.3 },
+    "apple_m2_cpu": { "total_latency_ms": 19.8, "fps": 50.5 },
+    "arm_cortex_a76_jetson": { "total_latency_ms": 34.6, "fps": 28.9 }
+  }
+}
