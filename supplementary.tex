@@ -12,6 +12,8 @@
 \usepackage{url}
 \usepackage{float}
 \usepackage{fancyhdr}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric,fit,calc}
 \usepackage[hidelinks]{hyperref}
 
 % Professional spacing and formatting
@@ -59,7 +61,7 @@
 \maketitle
 \thispagestyle{fancy}
 
-% Notice box clarifying the role of this supplementary document
+% Official Document Notice Box
 \begin{center}
 \fcolorbox{gray!50}{gray!8}{%
 \parbox{0.96\columnwidth}{%
@@ -161,14 +163,60 @@ with regularization weight $\lambda_{\text{phys}} = 0.05$. By penalizing instant
 
 \section{System Flowchart and Structural Specifications}
 
-Fig.~\ref{fig:flowchart} illustrates the comprehensive end to end architectural flowchart of the RACER-X continuous sign language translation system, spanning live video ingestion, 75 MediaPipe holistic landmark extraction, dual stream geometric feature encoding, adaptive reliability gating, causal recurrent cell updating, Bayesian prior CTC decoding, and synchronized dual output delivery.
+Fig.~\ref{fig:flowchart} illustrates the comprehensive architectural flowchart of the RACER-X continuous sign language translation system, spanning video ingestion, MediaPipe holistic landmark extraction, Frenet Serret kinematics, bilateral cross hand attention, reliability and conflict gated updates, and real time WebRTC caption delivery.
 
-\begin{figure*}[t]
+\begin{figure}[H]
 \centering
-\includegraphics[width=0.95\textwidth]{figures/racerx_flowchart.png}
-\caption{Comprehensive end to end architectural flowchart of the RACER-X continuous sign language recognition and live teleconferencing system, displaying the causal progression across sensory ingestion, geometric encoding, adaptive state gating, sequence decoding, and client delivery.}
+\IfFileExists{figures/racerx_flowchart.png}{%
+    \includegraphics[width=0.98\columnwidth]{figures/racerx_flowchart.png}%
+}{%
+    \IfFileExists{racerx_flowchart.png}{%
+        \includegraphics[width=0.98\columnwidth]{racerx_flowchart.png}%
+    }{%
+        \resizebox{\columnwidth}{!}{%
+        \begin{tikzpicture}[
+            scale=0.95,
+            transform shape,
+            box/.style={rectangle, draw=blue!85!black, fill=blue!6, rounded corners=3pt, align=center, minimum width=38mm, minimum height=10mm, font=\scriptsize\bfseries, thick, inner sep=3pt},
+            inno/.style={rectangle, draw=purple!85!black, fill=purple!6, rounded corners=3pt, align=center, minimum width=38mm, minimum height=10mm, font=\scriptsize\bfseries, thick, inner sep=3pt},
+            gate/.style={rectangle, draw=red!85!black, fill=red!8, rounded corners=3pt, align=center, minimum width=38mm, minimum height=10mm, font=\scriptsize\bfseries, thick, inner sep=3pt},
+            output/.style={rectangle, draw=green!70!black, fill=green!8, rounded corners=3pt, align=center, minimum width=80mm, minimum height=10mm, font=\scriptsize\bfseries, thick, inner sep=3.5pt},
+            arrow/.style={-{Latex[length=2mm, width=1.4mm]}, line width=0.8pt, draw=gray!80!black},
+            physarrow/.style={-{Latex[length=2mm, width=1.4mm]}, line width=0.8pt, dashed, draw=red!75!black},
+            looparrow/.style={-{Latex[length=2mm, width=1.4mm]}, line width=0.8pt, draw=blue!75!black}
+        ]
+        \node[box] (input) at (2.0, 0) {WebRTC Video Stream\\Input Frame ($I_t$)};
+        \node[box] (mp) at (6.2, 0) {MediaPipe Holistic\\Keypoints ($\hat{P}_t$)};
+        \node[inno] (frenet) at (2.0, -1.4) {\textbf{Frenet Kinematics}\\$\kappa_t$ (Curvature), $\tau_t$ (Torsion)};
+        \node[inno] (bilateral) at (6.2, -1.4) {\textbf{Bilateral Attention}\\Cross Hand Context ($S_t$)};
+        \node[box] (cand) at (2.0, -2.9) {Candidate State\\$\tilde{H}_t = \tanh(W x_t + U H_{t-1})$};
+        \node[inno] (rel_conf) at (6.2, -2.9) {\textbf{Gating Inputs}\\Reliability $R_t$ \& Conf $A_t$};
+        \node[box] (state_update) at (2.0, -4.4) {Causal State Evolution\\$H_t = \text{CellUpdate}(\tilde{H}_t, H_{t-1}, g_t)$};
+        \node[gate] (gate_node) at (6.2, -4.4) {\textbf{Dynamic State Gate}\\$g_t = \sigma(W_g x_t + \alpha_R R_t + \alpha_A A_t)$};
+        \node[inno] (pinn) at (2.0, -5.9) {\textbf{Physics Loss}\\$\mathcal{L}_{\text{physics}} = \| \Delta \hat{P}_t - V_t \Delta t \|^2$};
+        \node[box] (bayes_ctc) at (6.2, -5.9) {Bayesian CTC Decoder\\$\log P_{\text{bal}} = \log P - \beta \log \mathcal{P}$};
+        \node[output] (extension) at (4.1, -7.3) {Real Time UI (Google Meet / Zoom Extension)\\(DOM Caption Overlay [24.3 ms] \& Synthesized Audio)};
+
+        \draw[arrow] (input) -- (mp);
+        \draw[arrow] (mp.south) -- ++(0,-0.25) -| (frenet.north);
+        \draw[arrow] (mp.south) -- (bilateral.north);
+        \draw[arrow] (frenet.east) -- (bilateral.west);
+        \draw[arrow] (frenet.south) -- (cand.north);
+        \draw[arrow] (bilateral.south) -- (rel_conf.north);
+        \draw[arrow] (rel_conf.south) -- (gate_node.north);
+        \draw[arrow] (gate_node.west) -- (state_update.east);
+        \draw[arrow] (cand.south) -- (state_update.north);
+        \draw[looparrow] (state_update.west) -- ++(-0.5, 0) |- (cand.west);
+        \draw[physarrow] (state_update.south) -- (pinn.north);
+        \draw[arrow] (state_update.south) -- ++(0,-0.3) -| (bayes_ctc.north);
+        \draw[arrow] (bayes_ctc.south) -- ++(0,-0.25) -| (extension.north);
+        \end{tikzpicture}%
+        }%
+    }%
+}
+\caption{System architecture and processing flowchart of RACER-X, displaying Frenet Serret kinematics, bilateral cross hand attention, reliability and conflict gated updates, physics loss, and client delivery.}
 \label{fig:flowchart}
-\end{figure*}
+\end{figure}
 
 Table~\ref{tab:hyperparameters} documents the comprehensive network architecture, layer shapes, parameter counts, and training configuration of the RACER-X framework.
 
@@ -254,8 +302,16 @@ Fig.~\ref{fig:video_demo} showcases the live continuous video execution pipeline
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.98\columnwidth]{figures/racerx_video_translation.png}
-\caption{Continuous sign language translation execution output of RACER-X operating on continuous broadcast footage, displaying active bounding box tracking, 3D hand skeleton topology, instantaneous reliability score ($R_t = 0.92$), and translated subtitle stream.}
+\IfFileExists{figures/racerx_video_translation.png}{%
+    \includegraphics[width=0.98\columnwidth]{figures/racerx_video_translation.png}%
+}{%
+    \IfFileExists{racerx_video_translation.png}{%
+        \includegraphics[width=0.98\columnwidth]{racerx_video_translation.png}%
+    }{%
+        \fbox{\parbox[c][2.8cm][c]{0.95\columnwidth}{\centering\textbf{[Figure S2: Video Translation Demo]}\\\vspace{1mm}\textit{Upload `racerx\_video\_translation.png' to Overleaf}}}%
+    }%
+}
+\caption{Continuous sign language translation output of RACER-X on video stream, illustrating 3D keypoint tracking, tracking reliability metric ($R_t = 0.92$), and translated subtitle stream.}
 \label{fig:video_demo}
 \end{figure}
 
@@ -265,23 +321,65 @@ To evaluate fault tolerance under real world call conditions, we tested RACER-X 
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.98\columnwidth]{figures/robustness_curves.png}
+\IfFileExists{figures/robustness_curves.png}{%
+    \includegraphics[width=0.98\columnwidth]{figures/robustness_curves.png}%
+}{%
+    \IfFileExists{robustness_curves.png}{%
+        \includegraphics[width=0.98\columnwidth]{robustness_curves.png}%
+    }{%
+        \fbox{\parbox[c][2.5cm][c]{0.95\columnwidth}{\centering\textbf{[Figure S3: Robustness Curves]}\\\vspace{1mm}\textit{Upload `robustness\_curves.png' to Overleaf}}}%
+    }%
+}
 \caption{Empirical word error rate (WER) response curves under progressive degradation: (a) Landmark occlusion ratio from 0\% to 40\%; (b) Dynamic spatial motion conflict severity across clean, jitter, blur, and severe hand crossing regimes.}
 \label{fig:robustness_curves_supp}
 \end{figure}
 
 Under severe landmark dropout (40\% occlusion in Fig.~\ref{fig:robustness_curves_supp}a), the baseline model loses tracking consistency and exhibits a WER escalation of $+29.9$ percentage points (reaching 68.4\% WER). In contrast, RACER-X incurs only a $+7.5$ percentage point change (retaining 32.3\% WER), confirming that adaptive gate closure prevents catastrophic error propagation.
 
-Fig.~\ref{fig:teleconferencing_demos} illustrates live deployment in an active Google Meet session between a deaf participant and a hearing colleague.
+Fig.~\ref{fig:teleconferencing_demos} illustrates live deployment in an active Google Meet session between a deaf participant and a hearing colleague, corresponding to Figure 3 of the main paper.
 
-\begin{figure*}[t]
+\begin{figure}[H]
 \centering
-\includegraphics[width=0.48\textwidth]{figures/realtime_signer_meet.png}
-\hfill
-\includegraphics[width=0.48\textwidth]{figures/realtime_listener_meet.png}
-\caption{Real time deployment of RACER-X in Google Meet teleconferencing: (Left) Deaf signer view operating in Listen Mode with real time dialogue translation cards; (Right) Hearing participant view with real time SignBridge gesture HUD and synchronized subtitle stream.}
+\begin{minipage}{\columnwidth}
+    \centering
+    \IfFileExists{figures/realtime_signer_meet.png}{%
+        \includegraphics[width=0.98\columnwidth]{figures/realtime_signer_meet.png}%
+    }{%
+        \IfFileExists{realtime_signer_meet.png}{%
+            \includegraphics[width=0.98\columnwidth]{realtime_signer_meet.png}%
+        }{%
+            \IfFileExists{realtime_signer_meet.jpg}{%
+                \includegraphics[width=0.98\columnwidth]{realtime_signer_meet.jpg}%
+            }{%
+                \fbox{\parbox[c][2.2cm][c]{0.95\columnwidth}{\centering\textbf{[Figure S4(a): Deaf Signer Communication]}\\\vspace{1mm}\textit{Upload `realtime\_signer\_meet.png' to Overleaf}}}%
+            }%
+        }%
+    }
+    \par\vspace{1mm}
+    {\footnotesize (a) Deaf signer communicating via natural gestures in Google Meet, with real time dialogue transcription and synchronized voice output.}
+\end{minipage}
+\vspace{2mm}
+\begin{minipage}{\columnwidth}
+    \centering
+    \IfFileExists{figures/realtime_listener_meet.png}{%
+        \includegraphics[width=0.98\columnwidth]{figures/realtime_listener_meet.png}%
+    }{%
+        \IfFileExists{realtime_listener_meet.png}{%
+            \includegraphics[width=0.98\columnwidth]{realtime_listener_meet.png}%
+        }{%
+            \IfFileExists{realtime_listener_meet.jpg}{%
+                \includegraphics[width=0.98\columnwidth]{realtime_listener_meet.jpg}%
+            }{%
+                \fbox{\parbox[c][2.2cm][c]{0.95\columnwidth}{\centering\textbf{[Figure S4(b): Hearing Participant Receiving Translation]}\\\vspace{1mm}\textit{Upload `realtime\_listener\_meet.png' to Overleaf}}}%
+            }%
+        }%
+    }
+    \par\vspace{1mm}
+    {\footnotesize (b) Hearing call participant receiving continuous translation, with spatial gesture skeleton HUD and real time subtitle banner.}
+\end{minipage}
+\caption{Real time interactive teleconferencing deployment of RACER-X during an active Google Meet video session, enabling bidirectional communication between deaf signers and hearing participants through synchronized text and synthesized voice.}
 \label{fig:teleconferencing_demos}
-\end{figure*}
+\end{figure}
 
 Table~\ref{tab:qualitative_examples} presents representative qualitative translation transcripts across challenging teleconferencing scenarios, comparing raw baseline predictions against RACER-X outputs.
 
