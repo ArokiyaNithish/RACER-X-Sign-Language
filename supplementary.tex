@@ -11,32 +11,69 @@
 \usepackage{array}
 \usepackage{url}
 \usepackage{float}
+\usepackage{fancyhdr}
 \usepackage[hidelinks]{hyperref}
 
 % Professional spacing and formatting
-\renewcommand{\arraystretch}{1.12}
-\setlength{\intextsep}{4pt plus 1pt minus 1pt}
-\setlength{\textfloatsep}{4pt plus 1pt minus 1pt}
+\renewcommand{\arraystretch}{1.14}
+\setlength{\intextsep}{5pt plus 1pt minus 1pt}
+\setlength{\textfloatsep}{5pt plus 1pt minus 1pt}
+
+% =========================================================
+% OFFICIAL IEEE SUPPLEMENTARY NUMBERING (S-PREFIX CONVENTION)
+% =========================================================
+\renewcommand{\thesection}{S\Roman{section}}
+\renewcommand{\thesubsection}{\thesection.\Alph{subsection}}
+\renewcommand{\theequation}{S\arabic{equation}}
+\renewcommand{\thefigure}{S\arabic{figure}}
+\renewcommand{\thetable}{S\arabic{table}}
+
+\makeatletter
+\renewcommand{\fnum@figure}{\figurename~S\thefigure}
+\renewcommand{\fnum@table}{\tablename~S\thetable}
+\makeatother
+
+% Running header and footer for Supplementary Document
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\footnotesize \textit{Supplementary Material: IEEE ICCIDS 2027 (Paper ID: 1751)}}
+\fancyhead[R]{\footnotesize \textit{RACER-X Continuous Sign Language Translation}}
+\fancyfoot[C]{\footnotesize Page S-\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
 
 \begin{document}
 
-\title{Supplementary Material: RACER-X: Reliability and Conflict Conditioned Causal Recurrent State Updating for Fault Tolerant Continuous Sign Language Recognition}
+% --- TITLE BLOCK FOR SUPPLEMENTARY DOCUMENT ---
+\title{Supplementary Material for Paper ID 1751:\\
+\LARGE RACER-X: Reliability and Conflict Conditioned Causal Recurrent State Updating for Fault Tolerant Continuous Sign Language Recognition}
 
 \author{
     \IEEEauthorblockN{Dr. P. Santhi, Ishwarya M, Arokiya Nithish J}\\
     \IEEEauthorblockA{\textit{Department of Artificial Intelligence \& Data Science}\\
     \textit{Vel Tech Rangarajan Dr. Sagunthala R\&D Institute of Science and Technology}\\
     Chennai 600062, India\\
-    Paper ID: 1751 \quad $|$ \quad Track: Artificial Intelligence \& Computer Vision \quad $|$ \quad ICCIDS 2027}
+    \textbf{IEEE ICCIDS 2027} \quad $|$ \quad \textbf{Paper ID: 1751} \quad $|$ \quad Track: Artificial Intelligence \& Computer Vision}
 }
 
 \maketitle
+\thispagestyle{fancy}
+
+% Notice box clarifying the role of this supplementary document
+\begin{center}
+\fcolorbox{gray!50}{gray!8}{%
+\parbox{0.96\columnwidth}{%
+\footnotesize \textbf{Document Notice:} This official supplementary document provides supplementary proofs, architectural specifications, master dataset domain breakdowns, end to end system flowcharts, qualitative error analyses, real time teleconferencing demos, cross platform latency benchmarks, and permanent repository links supporting IEEE Paper ID 1751. This document accompanies the main manuscript submitted to IEEE ICCIDS 2027.
+}%
+}
+\end{center}
+\vspace{2pt}
 
 \begin{abstract}
-This official supplementary document provides extended mathematical proofs, complete structural hyperparameter configurations, end to end system flowcharts, dataset curation breakdowns, working video and teleconferencing demos, cross platform latency benchmarks, and verifiable repository links supporting Paper ID 1751. All empirical evaluations, parameter counts, and baseline comparisons are documented to ensure full scientific reproducibility.
+This supplementary document provides extended mathematical proofs, complete structural hyperparameter configurations, end to end system flowcharts, dataset curation breakdowns, working video and teleconferencing demos, cross platform latency benchmarks, and verifiable repository links supporting Paper ID 1751. All empirical evaluations, parameter counts, and baseline comparisons are documented to ensure full scientific reproducibility.
 \end{abstract}
 
-\section{Mathematical Formulations and Theoretical Proofs}
+\section{Extended Mathematical Formulations and Theoretical Proofs}
 
 \subsection{Discrete Frenet Serret Invariant Geometry}
 In continuous gesture recognition, planar projections from single camera sensors suffer from perspective ambiguity. When hands move toward or away from the camera along the optical axis, two dimensional coordinates register minimal displacement, while the actual physical velocity in three dimensional space is significant. To establish coordinate frame invariance under rigid spatial transformations, RACER-X computes the instantaneous curvature $\kappa_t$ and torsion $\tau_t$ of joint trajectories.
