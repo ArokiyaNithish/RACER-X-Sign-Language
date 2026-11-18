@@ -1,4 +1,4 @@
-\documentclass[10pt,journal,compsoc]{IEEEtran}
+\documentclass[10pt,journal,compsoc,onecolumn]{IEEEtran}
 
 \usepackage{cite}
 \usepackage{amsmath,amssymb,amsfonts}
@@ -10,30 +10,26 @@
 \usepackage{booktabs}
 \usepackage{array}
 \usepackage{url}
-\usepackage{float}
 \usepackage{fancyhdr}
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta,positioning,shapes.geometric,fit,calc}
 \usepackage[hidelinks]{hyperref}
+\usepackage[margin=0.85in]{geometry}
 
 % Professional spacing and formatting
-\renewcommand{\arraystretch}{1.14}
-\setlength{\intextsep}{5pt plus 1pt minus 1pt}
-\setlength{\textfloatsep}{5pt plus 1pt minus 1pt}
+\renewcommand{\arraystretch}{1.18}
+\setlength{\intextsep}{8pt plus 2pt minus 2pt}
+\setlength{\textfloatsep}{8pt plus 2pt minus 2pt}
+\raggedbottom
 
 % =========================================================
-% OFFICIAL IEEE SUPPLEMENTARY NUMBERING (S-PREFIX CONVENTION)
+% OFFICIAL IEEE SUPPLEMENTARY NUMBERING (CLEAN S-PREFIX)
 % =========================================================
-\renewcommand{\thesection}{S\Roman{section}}
-\renewcommand{\thesubsection}{\thesection.\Alph{subsection}}
-\renewcommand{\theequation}{S\arabic{equation}}
+\renewcommand{\thesection}{S-\Roman{section}}
+\renewcommand{\thesubsection}{S-\Roman{section}.\Alph{subsection}}
 \renewcommand{\thefigure}{S\arabic{figure}}
 \renewcommand{\thetable}{S\arabic{table}}
-
-\makeatletter
-\renewcommand{\fnum@figure}{\figurename~S\thefigure}
-\renewcommand{\fnum@table}{\tablename~S\thetable}
-\makeatother
+\renewcommand{\theequation}{S\arabic{equation}}
 
 % Running header and footer for Supplementary Document
 \pagestyle{fancy}
@@ -47,14 +43,13 @@
 \begin{document}
 
 % --- TITLE BLOCK FOR SUPPLEMENTARY DOCUMENT ---
-\title{Supplementary Material for Paper ID 1751:\\
-\LARGE RACER-X: Reliability and Conflict Conditioned Causal Recurrent State Updating for Fault Tolerant Continuous Sign Language Recognition}
+\title{\LARGE Supplementary Material for IEEE Paper ID 1751:\\[4pt]
+\textbf{RACER-X: Reliability and Conflict Conditioned Causal Recurrent State Updating for Fault Tolerant Continuous Sign Language Recognition}}
 
 \author{
-    \IEEEauthorblockN{Dr. P. Santhi, Ishwarya M, Arokiya Nithish J}\\
+    \IEEEauthorblockN{\textbf{Dr. P. Santhi, Ishwarya M, Arokiya Nithish J}}\\
     \IEEEauthorblockA{\textit{Department of Artificial Intelligence \& Data Science}\\
-    \textit{Vel Tech Rangarajan Dr. Sagunthala R\&D Institute of Science and Technology}\\
-    Chennai 600062, India\\
+    \textit{Vel Tech Rangarajan Dr. Sagunthala R\&D Institute of Science and Technology, Chennai 600062, India}\\
     \textbf{IEEE ICCIDS 2027} \quad $|$ \quad \textbf{Paper ID: 1751} \quad $|$ \quad Track: Artificial Intelligence \& Computer Vision}
 }
 
@@ -63,16 +58,16 @@
 
 % Official Document Notice Box
 \begin{center}
-\fcolorbox{gray!50}{gray!8}{%
-\parbox{0.96\columnwidth}{%
-\footnotesize \textbf{Document Notice:} This official supplementary document provides supplementary proofs, architectural specifications, master dataset domain breakdowns, end to end system flowcharts, qualitative error analyses, real time teleconferencing demos, cross platform latency benchmarks, and permanent repository links supporting IEEE Paper ID 1751. This document accompanies the main manuscript submitted to IEEE ICCIDS 2027.
+\fcolorbox{gray!40}{gray!6}{%
+\parbox{0.96\textwidth}{%
+\footnotesize \textbf{Document Notice:} This official supplementary document provides extended mathematical proofs, structural hyperparameter specifications, master dataset domain breakdowns, end to end system flowcharts, qualitative error analyses, real time teleconferencing demos, cross platform latency benchmarks, and permanent repository links supporting IEEE Paper ID 1751. This document accompanies the main manuscript submitted to IEEE ICCIDS 2027.
 }%
 }
 \end{center}
-\vspace{2pt}
+\vspace{4pt}
 
 \begin{abstract}
-This supplementary document provides extended mathematical proofs, complete structural hyperparameter configurations, end to end system flowcharts, dataset curation breakdowns, working video and teleconferencing demos, cross platform latency benchmarks, and verifiable repository links supporting Paper ID 1751. All empirical evaluations, parameter counts, and baseline comparisons are documented to ensure full scientific reproducibility.
+This supplementary document provides extended mathematical proofs, complete structural hyperparameter configurations, end to end system flowcharts, dataset curation breakdowns, working video and teleconferencing demos, cross platform latency benchmarks, and verifiable repository links supporting Paper ID 1751. All empirical evaluations, parameter counts, and baseline comparisons are documented in detail to ensure full scientific reproducibility.
 \end{abstract}
 
 \section{Extended Mathematical Formulations and Theoretical Proofs}
@@ -165,40 +160,40 @@ with regularization weight $\lambda_{\text{phys}} = 0.05$. By penalizing instant
 
 Fig.~\ref{fig:flowchart} illustrates the comprehensive architectural flowchart of the RACER-X continuous sign language translation system, spanning video ingestion, MediaPipe holistic landmark extraction, Frenet Serret kinematics, bilateral cross hand attention, reliability and conflict gated updates, and real time WebRTC caption delivery.
 
-\begin{figure}[H]
+\begin{figure}[htbp]
 \centering
 \IfFileExists{figures/racerx_flowchart.png}{%
-    \includegraphics[width=0.98\columnwidth]{figures/racerx_flowchart.png}%
+    \includegraphics[width=0.92\textwidth]{figures/racerx_flowchart.png}%
 }{%
     \IfFileExists{racerx_flowchart.png}{%
-        \includegraphics[width=0.98\columnwidth]{racerx_flowchart.png}%
+        \includegraphics[width=0.92\textwidth]{racerx_flowchart.png}%
     }{%
-        \resizebox{\columnwidth}{!}{%
+        \resizebox{0.92\textwidth}{!}{%
         \begin{tikzpicture}[
             scale=0.95,
             transform shape,
-            box/.style={rectangle, draw=blue!85!black, fill=blue!6, rounded corners=3pt, align=center, minimum width=38mm, minimum height=10mm, font=\scriptsize\bfseries, thick, inner sep=3pt},
-            inno/.style={rectangle, draw=purple!85!black, fill=purple!6, rounded corners=3pt, align=center, minimum width=38mm, minimum height=10mm, font=\scriptsize\bfseries, thick, inner sep=3pt},
-            gate/.style={rectangle, draw=red!85!black, fill=red!8, rounded corners=3pt, align=center, minimum width=38mm, minimum height=10mm, font=\scriptsize\bfseries, thick, inner sep=3pt},
-            output/.style={rectangle, draw=green!70!black, fill=green!8, rounded corners=3pt, align=center, minimum width=80mm, minimum height=10mm, font=\scriptsize\bfseries, thick, inner sep=3.5pt},
-            arrow/.style={-{Latex[length=2mm, width=1.4mm]}, line width=0.8pt, draw=gray!80!black},
-            physarrow/.style={-{Latex[length=2mm, width=1.4mm]}, line width=0.8pt, dashed, draw=red!75!black},
-            looparrow/.style={-{Latex[length=2mm, width=1.4mm]}, line width=0.8pt, draw=blue!75!black}
+            box/.style={rectangle, draw=blue!85!black, fill=blue!6, rounded corners=3pt, align=center, minimum width=45mm, minimum height=11mm, font=\small\bfseries, thick, inner sep=4pt},
+            inno/.style={rectangle, draw=purple!85!black, fill=purple!6, rounded corners=3pt, align=center, minimum width=45mm, minimum height=11mm, font=\small\bfseries, thick, inner sep=4pt},
+            gate/.style={rectangle, draw=red!85!black, fill=red!8, rounded corners=3pt, align=center, minimum width=45mm, minimum height=11mm, font=\small\bfseries, thick, inner sep=4pt},
+            output/.style={rectangle, draw=green!70!black, fill=green!8, rounded corners=3pt, align=center, minimum width=95mm, minimum height=11mm, font=\small\bfseries, thick, inner sep=4pt},
+            arrow/.style={-{Latex[length=2.2mm, width=1.6mm]}, line width=0.85pt, draw=gray!80!black},
+            physarrow/.style={-{Latex[length=2.2mm, width=1.6mm]}, line width=0.85pt, dashed, draw=red!75!black},
+            looparrow/.style={-{Latex[length=2.2mm, width=1.6mm]}, line width=0.85pt, draw=blue!75!black}
         ]
-        \node[box] (input) at (2.0, 0) {WebRTC Video Stream\\Input Frame ($I_t$)};
-        \node[box] (mp) at (6.2, 0) {MediaPipe Holistic\\Keypoints ($\hat{P}_t$)};
-        \node[inno] (frenet) at (2.0, -1.4) {\textbf{Frenet Kinematics}\\$\kappa_t$ (Curvature), $\tau_t$ (Torsion)};
-        \node[inno] (bilateral) at (6.2, -1.4) {\textbf{Bilateral Attention}\\Cross Hand Context ($S_t$)};
-        \node[box] (cand) at (2.0, -2.9) {Candidate State\\$\tilde{H}_t = \tanh(W x_t + U H_{t-1})$};
-        \node[inno] (rel_conf) at (6.2, -2.9) {\textbf{Gating Inputs}\\Reliability $R_t$ \& Conf $A_t$};
-        \node[box] (state_update) at (2.0, -4.4) {Causal State Evolution\\$H_t = \text{CellUpdate}(\tilde{H}_t, H_{t-1}, g_t)$};
-        \node[gate] (gate_node) at (6.2, -4.4) {\textbf{Dynamic State Gate}\\$g_t = \sigma(W_g x_t + \alpha_R R_t + \alpha_A A_t)$};
-        \node[inno] (pinn) at (2.0, -5.9) {\textbf{Physics Loss}\\$\mathcal{L}_{\text{physics}} = \| \Delta \hat{P}_t - V_t \Delta t \|^2$};
-        \node[box] (bayes_ctc) at (6.2, -5.9) {Bayesian CTC Decoder\\$\log P_{\text{bal}} = \log P - \beta \log \mathcal{P}$};
-        \node[output] (extension) at (4.1, -7.3) {Real Time UI (Google Meet / Zoom Extension)\\(DOM Caption Overlay [24.3 ms] \& Synthesized Audio)};
+        \node[box] (input) at (2.2, 0) {WebRTC Video Stream\\Input Frame ($I_t$)};
+        \node[box] (mp) at (7.2, 0) {MediaPipe Holistic Extractor\\Normalized Keypoints ($\hat{P}_t$)};
+        \node[inno] (frenet) at (2.2, -1.6) {\textbf{Frenet Kinematics}\\$\kappa_t$ (Curvature), $\tau_t$ (Torsion)};
+        \node[inno] (bilateral) at (7.2, -1.6) {\textbf{Bilateral Attention}\\Cross Hand Context ($S_t$)};
+        \node[box] (cand) at (2.2, -3.2) {Candidate Recurrent State\\$\tilde{H}_t = \tanh(W x_t + U H_{t-1})$};
+        \node[inno] (rel_conf) at (7.2, -3.2) {\textbf{Gating Inputs}\\Reliability $R_t$ \& Conf $A_t$};
+        \node[box] (state_update) at (2.2, -4.8) {Causal State Evolution\\$H_t = \text{CellUpdate}(\tilde{H}_t, H_{t-1}, g_t)$};
+        \node[gate] (gate_node) at (7.2, -4.8) {\textbf{Dynamic State Gate}\\$g_t = \sigma(W_g x_t + \alpha_R R_t + \alpha_A A_t)$};
+        \node[inno] (pinn) at (2.2, -6.4) {\textbf{Physics Trajectory Loss}\\$\mathcal{L}_{\text{physics}} = \| \Delta \hat{P}_t - V_t \Delta t \|^2$};
+        \node[box] (bayes_ctc) at (7.2, -6.4) {Bayesian Prior CTC Decoder\\$\log P_{\text{bal}} = \log P_{\text{CTC}} - \beta \log \mathcal{P}$};
+        \node[output] (extension) at (4.7, -7.9) {Real Time Teleconferencing Assistive UI (Google Meet Extension)\\(DOM Caption Overlay [24.3 ms Latency] \& Synthesized Speech Audio)};
 
         \draw[arrow] (input) -- (mp);
-        \draw[arrow] (mp.south) -- ++(0,-0.25) -| (frenet.north);
+        \draw[arrow] (mp.south) -- ++(0,-0.3) -| (frenet.north);
         \draw[arrow] (mp.south) -- (bilateral.north);
         \draw[arrow] (frenet.east) -- (bilateral.west);
         \draw[arrow] (frenet.south) -- (cand.north);
@@ -206,10 +201,10 @@ Fig.~\ref{fig:flowchart} illustrates the comprehensive architectural flowchart o
         \draw[arrow] (rel_conf.south) -- (gate_node.north);
         \draw[arrow] (gate_node.west) -- (state_update.east);
         \draw[arrow] (cand.south) -- (state_update.north);
-        \draw[looparrow] (state_update.west) -- ++(-0.5, 0) |- (cand.west);
+        \draw[looparrow] (state_update.west) -- ++(-0.6, 0) |- (cand.west);
         \draw[physarrow] (state_update.south) -- (pinn.north);
-        \draw[arrow] (state_update.south) -- ++(0,-0.3) -| (bayes_ctc.north);
-        \draw[arrow] (bayes_ctc.south) -- ++(0,-0.25) -| (extension.north);
+        \draw[arrow] (state_update.south) -- ++(0,-0.35) -| (bayes_ctc.north);
+        \draw[arrow] (bayes_ctc.south) -- ++(0,-0.3) -| (extension.north);
         \end{tikzpicture}%
         }%
     }%
@@ -220,11 +215,10 @@ Fig.~\ref{fig:flowchart} illustrates the comprehensive architectural flowchart o
 
 Table~\ref{tab:hyperparameters} documents the comprehensive network architecture, layer shapes, parameter counts, and training configuration of the RACER-X framework.
 
-\begin{table}[H]
+\begin{table}[htbp]
 \centering
 \caption{Comprehensive Structural and Training Hyperparameters}
 \label{tab:hyperparameters}
-\resizebox{\columnwidth}{!}{%
 \begin{tabular}{llr}
 \toprule
 \textbf{Structural / Training Parameter} & \textbf{Configuration Value} & \textbf{Scope / Remarks} \\
@@ -253,8 +247,7 @@ Bayesian Prior Discount Factor & $\beta = 0.35$ & Class Balance \\
 Physics Regularization Weight & $\lambda_{\text{phys}} = 0.05$ & Kinematic Smoothness \\
 Inference Compute Hardware & Intel Core i7 12700H CPU / 16 GB RAM & Client Benchmark \\
 \bottomrule
-\end{tabular}%
-}
+\end{tabular}
 \end{table}
 
 \section{Master Dataset Composition and Domain Breakdown}
@@ -267,11 +260,10 @@ The unified Indian Sign Language benchmark unites two comprehensive data sources
 
 Table~\ref{tab:domain_breakdown} summarizes the semantic domain coverage, sample volume, and per domain recognition accuracy across the benchmark.
 
-\begin{table}[H]
+\begin{table}[htbp]
 \centering
 \caption{Semantic Domain Distribution and Recognition Performance}
 \label{tab:domain_breakdown}
-\resizebox{\columnwidth}{!}{%
 \begin{tabular}{lcccc}
 \toprule
 \textbf{Semantic Domain} & \textbf{Vocabulary (Classes)} & \textbf{Samples} & \textbf{Accuracy (\%)} & \textbf{WER (\%)} \\
@@ -292,23 +284,22 @@ Continuous Broadcast (ISH News) & 1,104 & 4,884 & 79.8\% & 26.1\% \\
 \midrule
 \textbf{Master Benchmark Total} & \textbf{2,748 Unique Classes} & \textbf{9,168 Files} & \textbf{81.5\%} & \textbf{24.8\%} \\
 \bottomrule
-\end{tabular}%
-}
+\end{tabular}
 \end{table}
 
 \section{Continuous Sign Translation Execution Demo}
 
 Fig.~\ref{fig:video_demo} showcases the live continuous video execution pipeline of the RACER-X inference engine on continuous broadcast footage, displaying real time 3D skeleton keypoint overlay, tracking reliability confidence ($R_t = 0.92$), and decoded continuous subtitle streaming.
 
-\begin{figure}[H]
+\begin{figure}[htbp]
 \centering
 \IfFileExists{figures/racerx_video_translation.png}{%
-    \includegraphics[width=0.98\columnwidth]{figures/racerx_video_translation.png}%
+    \includegraphics[width=0.88\textwidth]{figures/racerx_video_translation.png}%
 }{%
     \IfFileExists{racerx_video_translation.png}{%
-        \includegraphics[width=0.98\columnwidth]{racerx_video_translation.png}%
+        \includegraphics[width=0.88\textwidth]{racerx_video_translation.png}%
     }{%
-        \fbox{\parbox[c][2.8cm][c]{0.95\columnwidth}{\centering\textbf{[Figure S2: Video Translation Demo]}\\\vspace{1mm}\textit{Upload `racerx\_video\_translation.png' to Overleaf}}}%
+        \fbox{\parbox[c][3.2cm][c]{0.88\textwidth}{\centering\textbf{[Figure S2: Video Translation Demo]}\\\vspace{1mm}\textit{Upload `racerx\_video\_translation.png' to Overleaf}}}%
     }%
 }
 \caption{Continuous sign language translation output of RACER-X on video stream, illustrating 3D keypoint tracking, tracking reliability metric ($R_t = 0.92$), and translated subtitle stream.}
@@ -319,15 +310,15 @@ Fig.~\ref{fig:video_demo} showcases the live continuous video execution pipeline
 
 To evaluate fault tolerance under real world call conditions, we tested RACER-X against standard GRU baselines across increasing keypoint occlusion ratios (0\% to 40\%) and dynamic spatial motion conflict levels (Clean, Jitter, Blur, Crossings). Fig.~\ref{fig:robustness_curves_supp} visualizes the resulting Word Error Rate (WER) degradation curves.
 
-\begin{figure}[H]
+\begin{figure}[htbp]
 \centering
 \IfFileExists{figures/robustness_curves.png}{%
-    \includegraphics[width=0.98\columnwidth]{figures/robustness_curves.png}%
+    \includegraphics[width=0.88\textwidth]{figures/robustness_curves.png}%
 }{%
     \IfFileExists{robustness_curves.png}{%
-        \includegraphics[width=0.98\columnwidth]{robustness_curves.png}%
+        \includegraphics[width=0.88\textwidth]{robustness_curves.png}%
     }{%
-        \fbox{\parbox[c][2.5cm][c]{0.95\columnwidth}{\centering\textbf{[Figure S3: Robustness Curves]}\\\vspace{1mm}\textit{Upload `robustness\_curves.png' to Overleaf}}}%
+        \fbox{\parbox[c][2.8cm][c]{0.88\textwidth}{\centering\textbf{[Figure S3: Robustness Curves]}\\\vspace{1mm}\textit{Upload `robustness\_curves.png' to Overleaf}}}%
     }%
 }
 \caption{Empirical word error rate (WER) response curves under progressive degradation: (a) Landmark occlusion ratio from 0\% to 40\%; (b) Dynamic spatial motion conflict severity across clean, jitter, blur, and severe hand crossing regimes.}
@@ -338,43 +329,43 @@ Under severe landmark dropout (40\% occlusion in Fig.~\ref{fig:robustness_curves
 
 Fig.~\ref{fig:teleconferencing_demos} illustrates live deployment in an active Google Meet session between a deaf participant and a hearing colleague, corresponding to Figure 3 of the main paper.
 
-\begin{figure}[H]
+\begin{figure}[htbp]
 \centering
-\begin{minipage}{\columnwidth}
+\begin{minipage}{0.48\textwidth}
     \centering
     \IfFileExists{figures/realtime_signer_meet.png}{%
-        \includegraphics[width=0.98\columnwidth]{figures/realtime_signer_meet.png}%
+        \includegraphics[width=\textwidth]{figures/realtime_signer_meet.png}%
     }{%
         \IfFileExists{realtime_signer_meet.png}{%
-            \includegraphics[width=0.98\columnwidth]{realtime_signer_meet.png}%
+            \includegraphics[width=\textwidth]{realtime_signer_meet.png}%
         }{%
             \IfFileExists{realtime_signer_meet.jpg}{%
-                \includegraphics[width=0.98\columnwidth]{realtime_signer_meet.jpg}%
+                \includegraphics[width=\textwidth]{realtime_signer_meet.jpg}%
             }{%
-                \fbox{\parbox[c][2.2cm][c]{0.95\columnwidth}{\centering\textbf{[Figure S4(a): Deaf Signer Communication]}\\\vspace{1mm}\textit{Upload `realtime\_signer\_meet.png' to Overleaf}}}%
+                \fbox{\parbox[c][2.5cm][c]{\textwidth}{\centering\textbf{[Figure S4(a): Deaf Signer Communication]}}}%
             }%
         }%
     }
-    \par\vspace{1mm}
+    \par\vspace{1.5mm}
     {\footnotesize (a) Deaf signer communicating via natural gestures in Google Meet, with real time dialogue transcription and synchronized voice output.}
 \end{minipage}
-\vspace{2mm}
-\begin{minipage}{\columnwidth}
+\hfill
+\begin{minipage}{0.48\textwidth}
     \centering
     \IfFileExists{figures/realtime_listener_meet.png}{%
-        \includegraphics[width=0.98\columnwidth]{figures/realtime_listener_meet.png}%
+        \includegraphics[width=\textwidth]{figures/realtime_listener_meet.png}%
     }{%
         \IfFileExists{realtime_listener_meet.png}{%
-            \includegraphics[width=0.98\columnwidth]{realtime_listener_meet.png}%
+            \includegraphics[width=\textwidth]{realtime_listener_meet.png}%
         }{%
             \IfFileExists{realtime_listener_meet.jpg}{%
-                \includegraphics[width=0.98\columnwidth]{realtime_listener_meet.jpg}%
+                \includegraphics[width=\textwidth]{realtime_listener_meet.jpg}%
             }{%
-                \fbox{\parbox[c][2.2cm][c]{0.95\columnwidth}{\centering\textbf{[Figure S4(b): Hearing Participant Receiving Translation]}\\\vspace{1mm}\textit{Upload `realtime\_listener\_meet.png' to Overleaf}}}%
+                \fbox{\parbox[c][2.5cm][c]{\textwidth}{\centering\textbf{[Figure S4(b): Hearing Participant Receiving Translation]}}}%
             }%
         }%
     }
-    \par\vspace{1mm}
+    \par\vspace{1.5mm}
     {\footnotesize (b) Hearing call participant receiving continuous translation, with spatial gesture skeleton HUD and real time subtitle banner.}
 \end{minipage}
 \caption{Real time interactive teleconferencing deployment of RACER-X during an active Google Meet video session, enabling bidirectional communication between deaf signers and hearing participants through synchronized text and synthesized voice.}
@@ -383,36 +374,33 @@ Fig.~\ref{fig:teleconferencing_demos} illustrates live deployment in an active G
 
 Table~\ref{tab:qualitative_examples} presents representative qualitative translation transcripts across challenging teleconferencing scenarios, comparing raw baseline predictions against RACER-X outputs.
 
-\begin{table}[H]
+\begin{table}[htbp]
 \centering
 \caption{Qualitative Translation Outputs Across Stress Conditions}
 \label{tab:qualitative_examples}
-\resizebox{\columnwidth}{!}{%
-\begin{tabular}{p{2.6cm}p{3.2cm}p{3.2cm}}
+\begin{tabular}{p{3.8cm}p{5.0cm}p{5.0cm}}
 \toprule
 \textbf{Input Gesture Scenario} & \textbf{Standard Baseline (GRU)} & \textbf{RACER-X Output (Proposed)} \\
 \midrule
 Fast Greeting with Transition Blur & \textit{"Hello welcome tomorrow"} (Substitution Error) & \textbf{"Hello everyone welcome"} (Exact Match) \\
-\addlinespace[2pt]
+\addlinespace[3pt]
 Hand Crossing during Explanation & \textit{"Understand repeat repeat agree"} (Hallucination) & \textbf{"Could you please repeat that?"} (Exact Match) \\
-\addlinespace[2pt]
+\addlinespace[3pt]
 40\% Hand Occlusion by Microphone & \textit{"Thank thank [blank]"} (Deletion Error) & \textbf{"Thank you very much"} (Exact Match) \\
-\addlinespace[2pt]
+\addlinespace[3pt]
 Low Light Ambient Studio Frame & \textit{"Project meeting cancel"} (False Prediction) & \textbf{"Let us collaborate on this project"} (Exact Match) \\
 \bottomrule
-\end{tabular}%
-}
+\end{tabular}
 \end{table}
 
 \section{Cross Platform Real Time Latency Benchmarks}
 
 To verify that the system satisfies human conversational thresholds across diverse client machines, Table~\ref{tab:hardware_latency} provides component wise latency profiles measured across four representative hardware targets.
 
-\begin{table}[H]
+\begin{table}[htbp]
 \centering
 \caption{Cross Platform Latency Profiling across Hardware Targets}
 \label{tab:hardware_latency}
-\resizebox{\columnwidth}{!}{%
 \begin{tabular}{lcccc}
 \toprule
 \textbf{Pipeline Stage} & \textbf{Intel Core i7 12th} & \textbf{AMD Ryzen 7 5800H} & \textbf{Apple M2 (MPS)} & \textbf{Raspberry Pi 5 (ARM)} \\
@@ -428,8 +416,7 @@ DOM Render \& Voice TTS ($L_{\text{out}}$) & 1.5 ms & 1.6 ms & 1.2 ms & 4.1 ms \
 \textbf{Total End to End Latency} & \textbf{24.3 ms} & \textbf{25.4 ms} & \textbf{19.7 ms} & \textbf{64.1 ms} \\
 \textbf{Effective Frame Rate} & \textbf{41.2 FPS} & \textbf{39.4 FPS} & \textbf{50.8 FPS} & \textbf{15.6 FPS} \\
 \bottomrule
-\end{tabular}%
-}
+\end{tabular}
 \end{table}
 
 Across standard laptop hardware (Intel Core i7, AMD Ryzen 7, Apple M2), the total processing budget remains consistently below the 33.3~ms threshold required for real time 30~FPS teleconferencing, delivering instantaneous subtitle injection and synthesized voice synchronization during live Google Meet and Zoom video calls.
@@ -438,12 +425,11 @@ Across standard laptop hardware (Intel Core i7, AMD Ryzen 7, Apple M2), the tota
 
 To satisfy IEEE reproducibility standards, all underlying source code, pretrained network checkpoints, master datasets, and evaluation scripts are maintained at the permanent public repositories listed in Table~\ref{tab:official_proofs}.
 
-\begin{table}[H]
+\begin{table}[htbp]
 \centering
 \caption{Permanent Repository Links, Checkpoints and Verification Metadata}
 \label{tab:official_proofs}
-\resizebox{\columnwidth}{!}{%
-\begin{tabular}{lp{5.2cm}}
+\begin{tabular}{lp{9.5cm}}
 \toprule
 \textbf{Resource Name} & \textbf{Permanent URL / Cryptographic Hash} \\
 \midrule
@@ -456,8 +442,7 @@ Host Institution & Vel Tech Rangarajan Dr. Sagunthala R\&D Institute of Science 
 Department / City & Department of Artificial Intelligence \& Data Science, Chennai 600062, India \\
 Author Contact & Dr. P. Santhi (drpsanthi@veltech.edu.in), Arokiya Nithish J (arokiyanithishj@gmail.com) \\
 \bottomrule
-\end{tabular}%
-}
+\end{tabular}
 \end{table}
 
 \end{document}
